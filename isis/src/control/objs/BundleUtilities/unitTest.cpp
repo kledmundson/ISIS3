@@ -13,6 +13,7 @@
 #include "Angle.h"
 #include "BundleControlPoint.h"
 #include "BundleImage.h"
+#include "BundleLidarControlPoint.h"
 #include "BundleMeasure.h"
 #include "BundlePolynomialContinuityConstraint.h"
 #include "BundleObservation.h"
@@ -28,6 +29,7 @@
 #include "IException.h"
 #include "Latitude.h"
 #include "LinearAlgebra.h"
+#include "LidarControlPoint.h"
 #include "Longitude.h"
 #include "Preference.h"
 #include "PvlObject.h"
@@ -547,7 +549,7 @@ int main(int argc, char *argv[]) {
     //      with a better (i.e. non-null) Camera. See ticket #4249.
     try {
       qDebug() << "apply param corrections successful?";
-      qDebug() << toString(bo3.applyParameterCorrections(paramCor));
+      qDebug() << toString(bo3.applyParameterCorrections(paramCor, false));
     }
     catch (IException &e) {
       e.print();
@@ -583,13 +585,13 @@ int main(int argc, char *argv[]) {
     try {
       bo3SettingsCopy.setInstrumentPositionSettings(BundleObservationSolveSettings::PositionOnly);
       nullBO.setSolveSettings(bo3SettingsCopy);
-      nullBO.applyParameterCorrections(paramCor);
+      nullBO.applyParameterCorrections(paramCor, false);
     }
     catch (IException &e) {
       e.print();
     }
     try {
-      bo3.applyParameterCorrections(paramCor);
+      bo3.applyParameterCorrections(paramCor, false);
     }
     catch (IException &e) {
       e.print();
@@ -934,6 +936,280 @@ int main(int argc, char *argv[]) {
     bcp2.copy(*bcp3);
     qDebug().noquote() << bcp2.formatBundleOutputSummaryString(errorProp);
     qDebug().noquote() << bcp2.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    qDebug() << "";
+    qDebug() << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    qDebug() << "";
+    qDebug() << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    qDebug() << "Testing BundleLidarControlPoint...";
+    #if 0
+    TEST COVERAGE (SCOPE) FOR THIS SOURCE FILE: 100%
+    #endif
+    qDebug() << "Create lidarPoint with free point containing 2 measures..."
+        << "(note that first measure is simultaneous, second measure is not)";
+    LidarControlPoint *lidarPoint = new LidarControlPoint("FreePoint");
+    ControlMeasure *lcm1 = new ControlMeasure;
+    lcm1->SetCubeSerialNumber("Ignored");
+    lcm1->SetIgnored(true);
+    lidarPoint->Add(cm1);
+    ControlMeasure *lcm2 = new ControlMeasure;
+    lcm2->SetCubeSerialNumber("NotIgnored");
+    lcm2->SetIgnored(false);
+    lcm2->SetCoordinate(1.0, 2.0);
+    lcm2->SetResidual(-3.0, 4.0);
+    lidarPoint->Add(cm2);
+    BundleLidarControlPoint blcp1(lidarPoint);
+    errorProp = false;
+    radiansToMeters = 10.0;
+
+    qDebug() << "Type of LidarBundleControlPoint 1:" << blcp1.type();
+
+    bcp1.setRejected(true);
+    qDebug() << "Set BundleLidarControlPoint 1 to rejected - is rejected?"
+        << toString(blcp1.isRejected());
+    blcp1.setRejected(false);
+    qDebug() << "Set BundleLidarControlPoint 1 to non-rejected - is rejected?"
+        << toString(blcp1.isRejected());
+
+    qDebug() << "Number of rejected measures:" << blcp1.numberOfRejectedMeasures();
+    blcp1.setNumberOfRejectedMeasures(2);
+    qDebug() << "Set number of rejected measures:" << blcp1.numberOfRejectedMeasures();
+    blcp1.zeroNumberOfRejectedMeasures();
+    qDebug() << "Zero out number of rejected measures:" << blcp1.numberOfRejectedMeasures();
+
+    // ??? these print outs are not pretty... fix???
+    qDebug().noquote() << blcp1.formatBundleOutputSummaryString(errorProp);
+    // ??? these print outs are not pretty... fix???
+    qDebug().noquote() << blcp1.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    errorProp = true;
+    // ??? these print outs are not pretty... fix???
+    qDebug().noquote() << blcp1.formatBundleOutputSummaryString(errorProp);
+    // ??? these print outs are not pretty... fix???
+    qDebug().noquote() << blcp1.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    qDebug() << "";
+
+    qDebug() << "Modify lidarPoint - setAdjustedSurfacePoint(0,0,10) and addMeasure()";
+    SurfacePoint lsp1(Latitude(0.0, Angle::Degrees),
+                     Longitude(0.0, Angle::Degrees),
+                     Distance(10.0, Distance::Meters));
+    blcp1.setAdjustedSurfacePoint(lsp1);
+    // ??? this appears to do nothing! measure is added to the internal QVector of measures,
+    // not the member control point...
+    // probably need to fix the format string methods to use "this" instead of member control point
+    // and accessor methods???
+    BundleMeasure lbcm = *(blcp1.addMeasure(lcm1));
+    // ??? these print outs are not pretty... fix???
+    qDebug().noquote() << blcp1.formatBundleOutputSummaryString(errorProp);
+    // ??? these print outs are not pretty... fix???
+    qDebug().noquote() << blcp1.formatBundleOutputDetailString(errorProp, radiansToMeters);
+
+    qDebug() << "Modify lidarPoint - setWeights() - solveRadius=false";
+    // default solveRadius=false
+    metersToRadians = 1.0 / radiansToMeters;
+    blcp1.setWeights(settings, metersToRadians);
+    qDebug().noquote() << bcp1.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << bcp1.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    aprioriSigmas = blcp1.aprioriSigmas();
+    weights = blcp1.weights();
+    //??? never set 000??? init to 1.0e+50???
+    corrections = blcp1.corrections();
+    //??? never set 000??? 1.0e+50???
+    adjustedSigmas = blcp1.adjustedSigmas();
+    //??? never set 000c??? 1.0e+50???
+    nicVector = blcp1.nicVector();
+    qMatrix = blcp1.cholmodQMatrix(); //??? empty matrix...
+    qDebug() << "aprioriSigmas:  "
+               << (Isis::IsSpecial(aprioriSigmas[0]) ? "N/A" : Isis::toString(aprioriSigmas[0]))
+               << (Isis::IsSpecial(aprioriSigmas[1]) ? "N/A" : Isis::toString(aprioriSigmas[1]))
+               << (Isis::IsSpecial(aprioriSigmas[2]) ? "N/A" : Isis::toString(aprioriSigmas[2]));
+    qDebug() << "weights:        " << weights[0] << weights[1] << weights[2];
+    qDebug() << "corrections:    " << corrections[0] << corrections[1] << corrections[2];
+    qDebug() << "adjustedSigmas: "
+               << (Isis::IsSpecial(adjustedSigmas[0]) ? "N/A" : Isis::toString(adjustedSigmas[0]))
+               << (Isis::IsSpecial(adjustedSigmas[1]) ? "N/A" : Isis::toString(adjustedSigmas[1]))
+               << (Isis::IsSpecial(adjustedSigmas[2]) ? "N/A" : Isis::toString(adjustedSigmas[2]));
+    qDebug() << "nicVector:      " << nicVector[0] << nicVector[1] << nicVector[2];
+    qDebug() << "qMatrix:";
+    qDebug() << qMatrix;
+
+    qDebug() << "Residual rms:" << blcp1.residualRms();
+    qDebug() << "";
+
+    qDebug() << "Modify lidarPoint - setWeights() - solveRadius=true, apriori lat/lon/rad <= 0";
+    settings->setSolveOptions(false, false, false, true, Isis::Null);
+    blcp1.setWeights(settings, metersToRadians);
+    qDebug().noquote() << bcp1.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << bcp1.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    aprioriSigmas = blcp1.aprioriSigmas();
+    weights = blcp1.weights();
+    qDebug() << "aprioriSigmas:  "
+               << (Isis::IsSpecial(aprioriSigmas[0]) ? "N/A" : Isis::toString(aprioriSigmas[0]))
+               << (Isis::IsSpecial(aprioriSigmas[1]) ? "N/A" : Isis::toString(aprioriSigmas[1]))
+               << (Isis::IsSpecial(aprioriSigmas[2]) ? "N/A" : Isis::toString(aprioriSigmas[2]));
+    qDebug() << "weights:        " << weights[0] << weights[1] << weights[2];
+    qDebug() << "";
+
+    qDebug() << "Modify lidarPoint - setWeights() - solveRadius=true, apriori lat/lon/rad > 0";
+    settings->setSolveOptions(false, false, false, true, 2.0, 3.0, 4.0);
+    blcp1.setWeights(settings, metersToRadians);
+    qDebug().noquote() << blcp1.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << blcp1.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    aprioriSigmas = blcp1.aprioriSigmas();
+    weights = blcp1.weights();
+    qDebug() << "aprioriSigmas:  "
+               << (Isis::IsSpecial(aprioriSigmas[0]) ? "N/A" : Isis::toString(aprioriSigmas[0]))
+               << (Isis::IsSpecial(aprioriSigmas[1]) ? "N/A" : Isis::toString(aprioriSigmas[1]))
+               << (Isis::IsSpecial(aprioriSigmas[2]) ? "N/A" : Isis::toString(aprioriSigmas[2]));
+    qDebug() << "weights:        " << weights[0] << weights[1] << weights[2];
+    qDebug() << "";
+
+    ControlPoint *rlcp = blcp1.rawControlPoint();
+    qDebug() << "Raw lidar control point equal to original?    " << toString(*rlcp == *freePoint);
+    qDebug() << "Raw lidar control point is rejected?          " << toString(blcp1.isRejected());
+    SurfacePoint blsp = blcp1.adjustedSurfacePoint();
+    qDebug() << "Adjusted SurfacePoint (Lat, Lon, Rad) = "
+               << toString(sp.GetLatitude().degrees())
+               << toString(sp.GetLongitude().degrees())
+               << toString(sp.GetLocalRadius().meters());
+    qDebug() << "";
+
+    qDebug() << "Create fixedLidarPoint from empty fixed point, adjusted surface point (90, 180, 10)...";
+    LidarControlPoint *fixedLidarPoint = new LidarControlPoint("FixedPoint");
+    fixedLidarPoint->SetType(ControlPoint::Fixed);
+    BundleLidarControlPoint *blcp3 = new BundleLidarControlPoint(fixedLidarPoint);
+    SurfacePoint lsp2(Latitude(90.0, Angle::Degrees),
+                     Longitude(180.0, Angle::Degrees),
+                     Distance(10.0, Distance::Meters));
+    blcp3->setAdjustedSurfacePoint(lsp2);
+    qDebug().noquote() << blcp3->formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << blcp3->formatBundleOutputDetailString(errorProp, radiansToMeters);
+
+    qDebug() << "Modify fixedLidarPoint - setWeights()";
+    blcp3->setWeights(settings, metersToRadians);
+    qDebug().noquote() << blcp3->formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << blcp3->formatBundleOutputDetailString(errorProp, radiansToMeters);
+    aprioriSigmas = blcp3->aprioriSigmas();
+    weights = blcp3->weights();
+    qDebug() << "aprioriSigmas:  "
+               << (Isis::IsSpecial(aprioriSigmas[0]) ? "NULL" : Isis::toString(aprioriSigmas[0]))
+               << (Isis::IsSpecial(aprioriSigmas[1]) ? "NULL" : Isis::toString(aprioriSigmas[1]))
+               << (Isis::IsSpecial(aprioriSigmas[2]) ? "NULL" : Isis::toString(aprioriSigmas[2]));
+    qDebug() << "weights:        " << weights[0] << weights[1] << weights[2];
+    qDebug() << "";
+
+    qDebug() << "Create constrainedLidarPoint from empty constrained point, surface point (0, 0, 10)...";
+    LidarControlPoint *constrainedLidarPoint = new LidarControlPoint("ConstrainedPoint");
+    constrainedLidarPoint->SetType(ControlPoint::Constrained);
+    BundleLidarControlPoint blcp4(constrainedLidarPoint);
+    blcp4.setAdjustedSurfacePoint(lsp1);
+    qDebug().noquote() << blcp4.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << blcp4.formatBundleOutputDetailString(errorProp, radiansToMeters);
+
+    qDebug() << "Modify constrainedLidarPoint - setWeights() - solveRadius=false";
+    settings->setSolveOptions(false, false, false, false);
+    blcp4.setWeights(settings, metersToRadians);
+    qDebug().noquote() << blcp4.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << blcp4.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    aprioriSigmas = blcp4.aprioriSigmas();
+    weights = blcp4.weights();
+    qDebug() << "aprioriSigmas:  "
+               << (Isis::IsSpecial(aprioriSigmas[0]) ? "NULL" : Isis::toString(aprioriSigmas[0]))
+               << (Isis::IsSpecial(aprioriSigmas[1]) ? "NULL" : Isis::toString(aprioriSigmas[1]))
+               << (Isis::IsSpecial(aprioriSigmas[2]) ? "NULL" : Isis::toString(aprioriSigmas[2]));
+    qDebug() << "weights:        " << weights[0] << weights[1] << weights[2];
+    qDebug() << "";
+
+    qDebug() << "Modify constrainedLidarPoint - setWeights() - no constraints, solveRadius=true, "
+                "apriori lat/lon/rad <= 0";
+    settings->setSolveOptions(false, false, false, true);
+    bcp4.setWeights(settings, metersToRadians);
+    qDebug().noquote() << bcp4.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << bcp4.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    aprioriSigmas = bcp4.aprioriSigmas();
+    weights = bcp4.weights();
+    qDebug() << "aprioriSigmas:  "
+               << (Isis::IsSpecial(aprioriSigmas[0]) ? "NULL" : Isis::toString(aprioriSigmas[0]))
+               << (Isis::IsSpecial(aprioriSigmas[1]) ? "NULL" : Isis::toString(aprioriSigmas[1]))
+               << (Isis::IsSpecial(aprioriSigmas[2]) ? "NULL" : Isis::toString(aprioriSigmas[2]));
+    qDebug() << "weights:        " << weights[0] << weights[1] << weights[2];
+    qDebug() << "";
+
+    qDebug() << "Modify constrainedLidarPoint - setWeights() - no constraints, solveRadius=true, "
+                "apriori lat/lon/rad > 0";
+    settings->setSolveOptions(false, false, false, true, 2.0, 3.0, 4.0);
+    blcp4.setWeights(settings, metersToRadians);
+    qDebug().noquote() << blcp4.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << blcp4.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    aprioriSigmas = blcp4.aprioriSigmas();
+    weights = blcp4.weights();
+    qDebug() << "aprioriSigmas:  "
+               << (Isis::IsSpecial(aprioriSigmas[0]) ? "NULL" : Isis::toString(aprioriSigmas[0]))
+               << (Isis::IsSpecial(aprioriSigmas[1]) ? "NULL" : Isis::toString(aprioriSigmas[1]))
+               << (Isis::IsSpecial(aprioriSigmas[2]) ? "NULL" : Isis::toString(aprioriSigmas[2]));
+    qDebug() << "weights:        " << weights[0] << weights[1] << weights[2];
+    qDebug() << "";
+    qDebug() << "";
+
+    qDebug() << "Create constrainedLidarPoint from constrained lidar point with adjusted surface point "
+                "(32, 120, 1000)...";
+    SurfacePoint aprioriLidarSurfPt;
+    aprioriLidarSurfPt.SetRadii(Distance(1000.0, Distance::Meters),
+                           Distance(1000.0, Distance::Meters),
+                           Distance(1000.0, Distance::Meters));
+    boost::numeric::ublas::symmetric_matrix<double, boost::numeric::ublas::upper> lcovar;
+    lcovar.resize(3);
+    lcovar.clear();
+    lcovar(0,0) = 100.0;
+    lcovar(1,1) = 2500.0;
+    lcovar(2,2) = 400.0;
+    aprioriLidarSurfPt.SetRectangular(Displacement(-424.024048, Displacement::Meters),
+                                 Displacement(734.4311949, Displacement::Meters),
+                                 Displacement(529.919264, Displacement::Meters), covar);
+    constrainedLidarPoint->SetAprioriSurfacePoint(aprioriLidarSurfPt);
+    BundleLidarControlPoint blcp5(constrainedLidarPoint);
+    SurfacePoint adjustedLidarSurfPt(constrainedLidarPoint->GetAdjustedSurfacePoint());
+    adjustedLidarSurfPt.SetSpherical(Latitude(32., Angle::Degrees),
+                                Longitude(120., Angle::Degrees),
+                                Distance(1000., Distance::Meters),
+                                Angle(1.64192315,Angle::Degrees),
+                                Angle(1.78752107, Angle::Degrees),
+                                Distance(38.454887335682053718134171237789, Distance::Meters));
+    adjustedLidarSurfPt.SetRadii(Distance(1000.0, Distance::Meters),
+                            Distance(1000.0, Distance::Meters),
+                            Distance(1000.0, Distance::Meters));
+    blcp5.setAdjustedSurfacePoint(adjustedLidarSurfPt);
+    qDebug().noquote() << blcp5.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << blcp5.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    qDebug() << "Modify constrainedLidarPoint - setWeights() - solveRadius=t, lat/lon/rad constrained";
+    blcp5.setWeights(settings, metersToRadians);
+    qDebug().noquote() << blcp5.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << blcp5.formatBundleOutputDetailString(errorProp, radiansToMeters);
+    aprioriSigmas = blcp5.aprioriSigmas(); // these values were verified by comparing against
+                                          // SurfacePoint truth data
+    weights = blcp5.weights();
+    qDebug() << "aprioriSigmas:  "
+               << (Isis::IsSpecial(aprioriSigmas[0]) ? "NULL" : Isis::toString(aprioriSigmas[0]))
+               << (Isis::IsSpecial(aprioriSigmas[1]) ? "NULL" : Isis::toString(aprioriSigmas[1]))
+               << (Isis::IsSpecial(aprioriSigmas[2]) ? "NULL" : Isis::toString(aprioriSigmas[2]));
+    qDebug() << "weights:        " << weights[0] << weights[1] << weights[2];
+    qDebug() << "";
+
+    qDebug() << "Create copy of freeLidarPoint using copy constructor...";
+    BundleLidarControlPoint blcp2(blcp1);
+    qDebug().noquote() << blcp2.formatBundleOutputSummaryString(errorProp);
+    //solveForRadius = false by default in formatBundleDetailString
+    qDebug() << "Output for formatBundleOutputDetailString(...) with solveForRadius = false:";
+    qDebug().noquote() << blcp2.formatBundleOutputDetailString(errorProp, radiansToMeters);
+
+    //solveForRadius = true
+    qDebug() << "Output for formatBundleOutputDetailString(...) with solveForRadius = true:";
+    qDebug().noquote() << blcp2.formatBundleOutputDetailString(errorProp, radiansToMeters,true);
+
+    qDebug() << "";
+
+    qDebug() << "Overwrite existing object with fixedLidarPoint information...";
+    blcp2.copy(*blcp3);
+    qDebug().noquote() << blcp2.formatBundleOutputSummaryString(errorProp);
+    qDebug().noquote() << blcp2.formatBundleOutputDetailString(errorProp, radiansToMeters);
     qDebug() << "";
     qDebug() << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
     qDebug() << "";
