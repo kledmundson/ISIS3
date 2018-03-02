@@ -41,7 +41,8 @@ namespace Isis {
    *
    * @internal
    *   @history 2018-01-29 Makayla Shepherd Original version
-   *   @history 2018-02-09 Ken Edmundson Added typedef forLidarControlPointQsp
+   *   @history 2018-02-09 Ken Edmundson Added typedef for LidarControlPointQsp
+   *   @history 2018-03-02 Ken Edmundson Added constructor with QString Id argument
    */
   
   class LidarControlPoint : public ControlPoint {
@@ -49,7 +50,8 @@ namespace Isis {
   public:
 
     LidarControlPoint();
-    
+    LidarControlPoint(const QString &newId);
+
     ~LidarControlPoint();
     
     ControlPoint::Status setRange(double range);

@@ -25,6 +25,17 @@ namespace Isis {
   
   
   /**
+   * Constructs a LidarControlPoint with the given Id.
+   *
+   */
+  LidarControlPoint::LidarControlPoint(const QString &newId) : ControlPoint(newId) {
+    m_time = iTime();
+    m_range = -1.0;
+    m_sigmaRange = -1.0;
+  }
+
+
+  /**
    * Destructor
    */
   LidarControlPoint::~LidarControlPoint() {
