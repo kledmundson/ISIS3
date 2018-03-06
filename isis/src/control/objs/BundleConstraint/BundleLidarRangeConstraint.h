@@ -26,28 +26,29 @@
 
 // Isis Library
 #include "BundleConstraint.h"
-#include "BundleObservation.h"
 #include "LinearAlgebra.h"
 #include "SparseBlockMatrix.h"
 
 namespace Isis {
+  class BundleLidarControlPoint;
+  typedef QSharedPointer<BundleLidarControlPoint> BundleLidarControlPointQsp;
+
   /**
-   * @brief Implements 0, 1, and 2-order piecewise polynomial continuity constraints for bundle
-   * adjustment.
+   * @brief Implements range constraint between lidar surface point and simultaneous image for
+   * bundle adjustment.
    *
-   * @ingroup ControlNetworks
+   * @ingroup Control
    *
-   * @author 2017-03-03 Ken Edmundson
+   * @author 2018-03-05 Ken Edmundson
    *
    * @internal
-   *   @history 2017-03-03 Ken Edmundson - Original version.
-   *   @history 2017-11-01 Ken Edmundson - Additional modifications to address bundle slowness.
+   *   @history 2018-03-05 Ken Edmundson - Original version.
    */
   class BundleLidarRangeConstraint : public BundleConstraint {
     public:
       // constructors
       BundleLidarRangeConstraint();
-      BundleLidarRangeConstraint(BundleObservationQsp parentObservation);
+      BundleLidarRangeConstraint(BundleLidarControlPointQsp parentBundleLidarPoint);
 
       // copy constructor
       BundleLidarRangeConstraint(const BundleLidarRangeConstraint &src);
@@ -56,18 +57,12 @@ namespace Isis {
       ~BundleLidarRangeConstraint();
 
       // Assignment operator
-      BundleLidarRangeConstraint &operator=
-          (const BundleLidarRangeConstraint &src);
+      BundleLidarRangeConstraint &operator= (const BundleLidarRangeConstraint &src);
 
-      int numberSpkSegments() const;
-      int numberCkSegments() const;
-      int numberSpkCoefficients() const;
-      int numberCkCoefficients() const;
-      int numberConstraintEquations() const;
+      bool formRangeConstraint();
 
-      void updateRightHandSide();
+        void updateRightHandSide();
       SparseBlockMatrix &normalsSpkMatrix();
-      SparseBlockMatrix &normalsCkMatrix();
       LinearAlgebra::Vector &rightHandSideVector();
 
       QString formatBundleOutputString();
@@ -75,30 +70,15 @@ namespace Isis {
     private:
       void constructMatrices();
       void positionContinuity(int &designRow);
-      void pointingContinuity(int &designRow);
 
-      BundleObservationQsp m_parentObservation;                //! parent BundleObservation
+      //! parent BundleLidarControlPoint
+      QSharedPointer<BundleLidarControlPoint> m_parentBundleLidarControlPoint;
 
       // spk related members
-      std::vector<double> m_spkKnots;                          //! scaled spk boundary times
       int m_numberSpkCoefficients;                             //! # coefficients
-      int m_numberSpkSegments;                                 //! # segments
-      int m_numberSpkBoundaries;                               //! # segment boundaries
-      int m_numberSpkSegmentParameters;
 
-      // ck related members
-      std::vector<double> m_ckKnots;                           //! scaled ck boundary times
-      int m_numberCkCoefficients;                              //! # coefficients
-      int m_numberCkSegments;                                  //! # segments
-      int m_numberCkBoundaries;                                //! # segment boundaries
-      int m_numberCkSegmentParameters;
-
-      int m_numberSegmentParameters;                           //! TODO: # parameters per segment
-      int m_numberParameters;                                  //! TODO: # parameters
-      int m_numberConstraintEquations;                         //! # constraint equations
       LinearAlgebra::MatrixCompressed m_designMatrix;          //! design matrix
       SparseBlockMatrix m_normalsSpkMatrix;                    //! normals contribution to position
-      SparseBlockMatrix m_normalsCkMatrix;                     //! normals contribution to pointing
       LinearAlgebra::Vector m_rightHandSide;                   //! right hand side of normals
       LinearAlgebra::Vector m_omcVector;                       //! observed minus corrected vector
   };

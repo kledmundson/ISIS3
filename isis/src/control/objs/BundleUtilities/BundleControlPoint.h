@@ -132,6 +132,11 @@ namespace Isis {
       void productAlphaAV(double alpha, SparseBlockMatrix &sparseMatrix,
                           LinearAlgebra::Vector &v1);
 
+      virtual bool applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
+                                             SparseBlockColumnMatrix &N12,
+                                             LinearAlgebra::Vector &n2,
+                                             SparseBlockMatrix sparseNormals);
+
     private:
       //!< pointer to the control point object this represents
       ControlPoint *m_controlPoint;

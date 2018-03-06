@@ -346,8 +346,11 @@ void outputConstraint(BundlePolynomialContinuityConstraint &constraint) {
     qDebug() << "Number of constraint equations: "
              << constraint.numberConstraintEquations();
     qDebug() << "";
-    qDebug() << "Normals matrix: ";
-    qDebug() << constraint.normalsMatrix();
+    qDebug() << "Normals ck matrix: ";
+    qDebug() << constraint.normalsCkMatrix();
+    qDebug() << "";
+    qDebug() << "Normals spk matrix: ";
+    qDebug() << constraint.normalsSpkMatrix();
     qDebug() << "";
     qDebug() << "Right hand side vector: ";
     qDebug() << constraint.rightHandSideVector();

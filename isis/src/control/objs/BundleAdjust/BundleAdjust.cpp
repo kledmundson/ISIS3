@@ -455,8 +455,10 @@ namespace Isis {
     // need validity checks and different conversion factors for lat and long
     // initialize m_bodyRadii
     Camera *cnetCamera = m_controlNet->Camera(0);
+    // TODO remove here after not initializing lidar point target radii
+    Distance bodyRadii[3];
     if (cnetCamera) {
-      Distance bodyRadii[3];
+//      Distance bodyRadii[3];
       bodyRadii[0] = bodyRadii[1] = bodyRadii[2] = Distance();
       cnetCamera->radii(bodyRadii);  // meters
 
@@ -534,7 +536,7 @@ namespace Isis {
       bundleControlPoint->setWeights(m_bundleSettings, m_metersToRadians);
 
       // set parent observation for each BundleMeasure
-
+      // TODO: can this be cleaner? Can it all happen in BundleControlPoint constructor?
       int numMeasures = bundleControlPoint->size();
       for (int j = 0; j < numMeasures; j++) {
         BundleMeasureQsp measure = bundleControlPoint->at(j);
@@ -559,16 +561,34 @@ namespace Isis {
         continue;
       }
 
+      // TODO: temporarily set point to constrained and set sigmas to 10m for lat, lon, radius; and
+      // set lidar range sigma to 10 m; will ultimately be done as part of lidar data ingestion
+
+      SurfacePoint sp = lidarPoint->GetAprioriSurfacePoint();
+      sp.SetRadii(bodyRadii[0],bodyRadii[1],bodyRadii[2]);
+      sp.SetSphericalSigmasDistance(Distance(10.0,Distance::Meters),Distance(10.0,Distance::Meters),
+                                    Distance(10.0,Distance::Meters));
+
+      lidarPoint->SetAprioriSurfacePoint(sp);
+
+      lidarPoint->SetType(ControlPoint::Constrained);
+      lidarPoint->setSigmaRange(10);
+
       BundleLidarControlPointQsp bundleLidarPoint(new BundleLidarControlPoint(lidarPoint.data()));
       m_bundleControlPoints.append(bundleLidarPoint);
 
       bundleLidarPoint->setWeights(m_bundleSettings, m_metersToRadians);
 
       // set parent observation for each BundleMeasure
+      // TODO: can this be cleaner? Can it all happen in BundleLidarControlPoint constructor?
       int numMeasures = bundleLidarPoint->size();
       for (int j = 0; j < numMeasures; j++) {
         BundleMeasureQsp measure = bundleLidarPoint->at(j);
         QString cubeSerialNumber = measure->cubeSerialNumber();
+
+        if (lidarPoint->HasSerialNumber(cubeSerialNumber)) {  // TODO: better way? since bundleLidarPoint contains lidarPoint?
+          bundleLidarPoint->addSimultaneousMeasure(measure);
+        }
 
         BundleObservationQsp observation =
             m_bundleObservations.observationByCubeSerialNumber(cubeSerialNumber);
@@ -578,40 +598,13 @@ namespace Isis {
         measure->setParentImage(image);
       }
 
+      // TODO: is this even necessary? We know the apriori coordinates. But we need to call the
+      // ControlMeasure::SetFocalPlaneMeasured method even if we don't have to compute the apriori
+      // 3D point coordinates. Can we do better? Can we call the SetFocalPlaneMeasured here directly
+      // if we know we don't need to call ComputeApriori?
       lidarPoint->ComputeApriori();
     }
 
-/*
-    // set up vector of BundleLidarControlPoints
-    int numLidarPoints = m_lidarDataSet.points().size();
-    for (int i = 0; i < numLidarPoints; i++) {
-      LidarControlPointQsp lidarPoint = m_lidarDataSet.points().at(i);
-      if (lidarPoint->IsIgnored()) {
-        continue;
-      }
-
-      BundleLidarControlPointQsp bundleLidarPoint(new BundleLidarControlPoint(lidarPoint.data()));
-      m_bundleLidarPoints.append(bundleLidarPoint);
-
-      bundleLidarPoint->setWeights(m_bundleSettings, m_metersToRadians);
-
-      // set parent observation for each BundleMeasure
-      int numMeasures = bundleLidarPoint->size();
-      for (int j = 0; j < numMeasures; j++) {
-        BundleMeasureQsp measure = bundleLidarPoint->at(j);
-        QString cubeSerialNumber = measure->cubeSerialNumber();
-
-        BundleObservationQsp observation =
-            m_bundleObservations.observationByCubeSerialNumber(cubeSerialNumber);
-        BundleImageQsp image = observation->imageByCubeSerialNumber(cubeSerialNumber);
-
-        measure->setParentObservation(observation);
-        measure->setParentImage(image);
-        int fred=1;
-      }
-      lidarPoint->ComputeApriori();
-    }
-*/
     //===========================================================================================//
     //==== Use the bundle settings to initialize more member variables and set up solutions =====//
     //===========================================================================================//
@@ -1249,42 +1242,6 @@ namespace Isis {
 
   /**
    * Form the least-squares normal equations matrix.
-   *
-   * TODO: how about a much better description here?
-   *
-   * @return bool
-   *
-   * @see formPhotoNormals()
-   * @see formLidarNormals()
-   */
-/*
-  bool BundleAdjust::formNormalEquations() {
-    bool status = false;
-
-    m_bundleResults.setNumberObservations(0);// ???
-    m_bundleResults.resetNumberConstrainedPointParameters();//???
-
-    m_RHS.resize(m_rank);
-
-    // contribution to normal equations matrix from photogrammetry points
-    status = formPhotoNormals();
-
-    // contribution to normal equations matrix from lidar points
-    if (m_bundleLidarPoints.size() > 0) {
-      status = formLidarNormals();
-    }
-
-    // apply piecewise polynomial continuity constraints if necessary
-    if (m_bundleResults.numberContinuityConstraintEquations() > 0) {
-      applyPolynomialContinuityConstraints();
-    }
-
-    return status;
-  }
-*/
-
-  /**
-   * Form the least-squares normal equations matrix.
    * Each BundleControlPoint stores its Q matrix and NIC vector.
    * The covariance matrix for each point will be stored in its adjusted surface point.
    *
@@ -1837,6 +1794,9 @@ bool BundleAdjust::formNormalEquations() {
     NIC.clear();
     Q.zeroBlocks();
 
+    // image-point range constraint if lidar
+    bundleControlPoint->applyLidarRangeConstraint(N22, N12, n2, m_sparseNormals);
+
     // weighting of 3D point parameters
     boost::numeric::ublas::bounded_vector<double, 3> &weights
         = bundleControlPoint->weights();
@@ -1865,6 +1825,8 @@ bool BundleAdjust::formNormalEquations() {
     invert3x3(N22);
 
     // save upper triangular covariance matrix for error propagation
+    // TODO: I think this is bad, we are making a copy of the SurfacePoint every time we need to
+    //       modify it
     SurfacePoint SurfacePoint = bundleControlPoint->adjustedSurfacePoint();
     SurfacePoint.SetSphericalMatrix(N22);
     bundleControlPoint->setAdjustedSurfacePoint(SurfacePoint);

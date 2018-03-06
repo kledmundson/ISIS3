@@ -22,12 +22,12 @@
  *   http://isis.astrogeology.usgs.gov, and the USGS privacy and disclaimers on
  *   http://www.usgs.gov/privacy.html.
  */
-
+// Qt Library
+#include <QSharedPointer>
 #include <QVector>
 
-#include <QSharedPointer>
-
 #include "BundleControlPoint.h"
+#include "BundleLidarRangeConstraint.h"
 #include "BundleMeasure.h"
 #include "BundleSettings.h"
 #include "SparseBlockMatrix.h"
@@ -36,8 +36,6 @@
 namespace Isis {
 
   class LidarControlPoint;
-
-//  class ControlMeasure;
 
   /**
    * This class holds information about a lidar control point that BundleAdjust requires.
@@ -65,12 +63,23 @@ namespace Isis {
       BundleLidarControlPoint &operator=(const BundleLidarControlPoint &src);// ??? not implemented
       void copy(const BundleLidarControlPoint &src);
 
-      // mutators
+      bool containsSerialNumber(QString serialNumberString);
 
-      // accessors
-//      LidarControlPoint *rawLidarControlPoint() const;
+      // mutators
+      void addSimultaneousMeasure(BundleMeasureQsp simMeasure);
+
+      QVector<BundleMeasureQsp> m_simultaneousMeasures;
+
+      bool applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
+                                     SparseBlockColumnMatrix &N12,
+                                     LinearAlgebra::Vector &n2,
+                                     SparseBlockMatrix sparseNormals);
 
       // string format methods
+
+    private:
+      //!< pointer to the control point object this represents
+      BundleLidarRangeConstraintQsp m_lidarRangeConstraint;
   };
 
   // typedefs

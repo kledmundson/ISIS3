@@ -830,4 +830,16 @@ namespace Isis {
       m_nicVector += alpha * prod(*(Qit.value()),subrange(v1,subrangeStart,subrangeEnd));
     }
   }
+
+  /**
+   * applies lidar range constraint (not sure if this actually makes sense)
+   *
+   */
+  bool BundleControlPoint::applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
+                                                          SparseBlockColumnMatrix &N12,
+                                                          LinearAlgebra::Vector &n2,
+                                                          SparseBlockMatrix sparseNormals) {
+    return false;
+  }
+
 }

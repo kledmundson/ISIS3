@@ -13,7 +13,7 @@ Printing PVL group with settings from the default constructor...
             <sigma>N/A</sigma>
         </aprioriPointingSigmas>
     </instrumentPointingOptions>
-    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="1" solveOverHermiteSpline="No" interpolationType="3">
+    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="0" solveOverHermiteSpline="No" interpolationType="3">
         <aprioriPositionSigmas/>
     </instrumentPositionOptions>
 </bundleObservationSolveSettings> 
@@ -29,7 +29,7 @@ Testing copy constructor...
             <sigma>N/A</sigma>
         </aprioriPointingSigmas>
     </instrumentPointingOptions>
-    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="1" solveOverHermiteSpline="No" interpolationType="3">
+    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="0" solveOverHermiteSpline="No" interpolationType="3">
         <aprioriPositionSigmas/>
     </instrumentPositionOptions>
 </bundleObservationSolveSettings> 
@@ -45,7 +45,7 @@ Testing assignment operator to set this equal to itself...
             <sigma>N/A</sigma>
         </aprioriPointingSigmas>
     </instrumentPointingOptions>
-    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="1" solveOverHermiteSpline="No" interpolationType="3">
+    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="0" solveOverHermiteSpline="No" interpolationType="3">
         <aprioriPositionSigmas/>
     </instrumentPositionOptions>
 </bundleObservationSolveSettings> 
@@ -61,7 +61,7 @@ Testing assignment operator to create a new settings object...
             <sigma>N/A</sigma>
         </aprioriPointingSigmas>
     </instrumentPointingOptions>
-    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="1" solveOverHermiteSpline="No" interpolationType="3">
+    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="0" solveOverHermiteSpline="No" interpolationType="3">
         <aprioriPositionSigmas/>
     </instrumentPositionOptions>
 </bundleObservationSolveSettings> 
@@ -334,7 +334,7 @@ Testing XML: read XML with no attributes or values to object...
             <sigma>N/A</sigma>
         </aprioriPointingSigmas>
     </instrumentPointingOptions>
-    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="1" solveOverHermiteSpline="No" interpolationType="3">
+    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="0" solveOverHermiteSpline="No" interpolationType="3">
         <aprioriPositionSigmas/>
     </instrumentPositionOptions>
 </bundleObservationSolveSettings> 
@@ -402,13 +402,13 @@ Testing mutators and accessors...
 
 0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,
 0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,
-  X  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-  Y  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-  Z  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
+  X             0.00000000           0.00000000          0.00000000               N/A               N/A
+  Y             0.00000000           0.00000000          0.00000000               N/A               N/A
+  Z             0.00000000           0.00000000          0.00000000               N/A               N/A
 
-  X  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-  Y  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-  Z  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
+  X             0.00000000           0.00000000          0.00000000               N/A               N/A
+  Y             0.00000000           0.00000000          0.00000000               N/A               N/A
+  Z             0.00000000           0.00000000          0.00000000               N/A               N/A
 
 
     Pointing Segment Number: 1
@@ -417,13 +417,13 @@ Testing mutators and accessors...
 
 0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,
 0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,
- RA  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-DEC  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-TWI  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
+ RA             0.00000000           0.00000000          0.00000000               N/A               N/A
+DEC             0.00000000           0.00000000          0.00000000               N/A               N/A
+TWI             0.00000000           0.00000000          0.00000000               N/A               N/A
 
- RA  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-DEC  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-TWI  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
+ RA             0.00000000           0.00000000          0.00000000               N/A               N/A
+DEC             0.00000000           0.00000000          0.00000000               N/A               N/A
+TWI             0.00000000           0.00000000          0.00000000               N/A               N/A
 
     Set solve settings using with TWIST=FALSE...
 
@@ -560,7 +560,7 @@ TWI  (t0)       0.00000000           0.00000000          0.00000000             
             <sigma>N/A</sigma>
         </aprioriPointingSigmas>
     </instrumentPointingOptions>
-    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="1" solveOverHermiteSpline="No" interpolationType="3">
+    <instrumentPositionOptions solveOption="None" numberCoefSolved="0" degree="2" solveDegree="2" numberPolySegments="0" solveOverHermiteSpline="No" interpolationType="3">
         <aprioriPositionSigmas/>
     </instrumentPositionOptions>
 </bundleObservationSolveSettings> 
@@ -585,13 +585,13 @@ adjusted sigmas :       0.0     0.0     0.0
 
 0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,
 0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,0.0,0.0,0.0,N/A,N/A,
-  X  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-  Y  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-  Z  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
+  X             0.00000000           0.00000000          0.00000000               N/A               N/A
+  Y             0.00000000           0.00000000          0.00000000               N/A               N/A
+  Z             0.00000000           0.00000000          0.00000000               N/A               N/A
 
-  X  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-  Y  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
-  Z  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A
+  X             0.00000000           0.00000000          0.00000000               N/A               N/A
+  Y             0.00000000           0.00000000          0.00000000               N/A               N/A
+  Z             0.00000000           0.00000000          0.00000000               N/A               N/A
 
 
     Pointing Segment Number: 1
@@ -619,9 +619,9 @@ TestImageFileName
 TestImage2FileName
 
 Get the number of segments
-Number of position segments:  1
+Number of position segments:  0
 Number of pointing segments:  1
-Total number of segments:  2
+Total number of segments:  1
 Number of continuity constraints:  0
 
 Testing exceptions...
@@ -635,9 +635,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 Testing BundleObservationVector...
 
 " RA  (t0)       0.00000000           0.00000000          0.00000000              FREE        0.00000000\nDEC  (t0)       0.00000000           0.00000000          0.00000000              FREE        0.00000000\nTWI  (t0)       0.00000000           0.00000000          0.00000000              FREE        0.00000000\n"
-"  X  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A\n  Y  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A\n  Z  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A\n"
+"  X             0.00000000           0.00000000          0.00000000               N/A               N/A\n  Y             0.00000000           0.00000000          0.00000000               N/A               N/A\n  Z             0.00000000           0.00000000          0.00000000               N/A               N/A\n"
 " RA  (t0)       0.00000000           0.00000000          0.00000000              FREE        0.00000000\nDEC  (t0)       0.00000000           0.00000000          0.00000000              FREE        0.00000000\nTWI  (t0)       0.00000000           0.00000000          0.00000000              FREE        0.00000000\n"
-"  X  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A\n  Y  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A\n  Z  (t0)       0.00000000           0.00000000          0.00000000               N/A               N/A\n"
+"  X             0.00000000           0.00000000          0.00000000               N/A               N/A\n  Y             0.00000000           0.00000000          0.00000000               N/A               N/A\n  Z             0.00000000           0.00000000          0.00000000               N/A               N/A\n"
 number of position parameters:  "0"
 number of pointing parameters:  "6"
 number of parameters:  "6"
@@ -932,6 +932,308 @@ Coordinate          Value             Correction          Correction            
 
 
 Overwrite existing object with FixedPoint information...
+      FixedPoint          FIXED    0 of 0  0.00     90.00000000    180.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: FixedPoint
+Status: FIXED
+  Rays: 0 of 0
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE      90.00000000           0.00000000          0.00000000         90.00000000             FIXED               N/A
+ LONGITUDE     180.00000000           0.00000000          0.00000000        180.00000000             FIXED               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000               N/A               N/A
+
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Testing BundleLidarControlPoint...
+Create lidarPoint with free point containing 2 measures... (note that first measure is simultaneous, second measure is not)
+Type of LidarBundleControlPoint 1: 2
+Set BundleLidarControlPoint 1 to rejected - is rejected? "No"
+Set BundleLidarControlPoint 1 to non-rejected - is rejected? "No"
+Number of rejected measures: 0
+Set number of rejected measures: 2
+Zero out number of rejected measures: 0
+       FreePoint           FREE    1 of 1  3.54            Null            Null            Null             N/A             N/A             N/A
+
+ Label: FreePoint
+Status: FREE
+  Rays: 1 of 1
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE             Null           0.00000000          0.00000000                Null              FREE               N/A
+ LONGITUDE             Null           0.00000000          0.00000000                Null              FREE               N/A
+    RADIUS             Null           0.00000000          0.00000000                Null               N/A               N/A
+
+
+       FreePoint           FREE    1 of 1  3.54            Null            Null            Null             N/A             N/A             N/A
+
+ Label: FreePoint
+Status: FREE
+  Rays: 1 of 1
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE             Null           0.00000000          0.00000000                Null              FREE               N/A
+ LONGITUDE             Null           0.00000000          0.00000000                Null              FREE               N/A
+    RADIUS             Null           0.00000000          0.00000000                Null               N/A               N/A
+
+
+
+Modify lidarPoint - setAdjustedSurfacePoint(0,0,10) and addMeasure()
+       FreePoint           FREE    2 of 2  3.54      0.00000000      0.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: FreePoint
+Status: FREE
+  Rays: 2 of 2
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE       0.00000000           0.00000000          0.00000000          0.00000000              FREE               N/A
+ LONGITUDE       0.00000000           0.00000000          0.00000000          0.00000000              FREE               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000               N/A               N/A
+
+
+Modify lidarPoint - setWeights() - solveRadius=false
+       FreePoint           FREE    2 of 2  3.54      0.00000000      0.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: FreePoint
+Status: FREE
+  Rays: 2 of 2
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE       0.00000000           0.00000000          0.00000000          0.00000000        2.00000000               N/A
+ LONGITUDE       0.00000000           0.00000000          0.00000000          0.00000000        3.00000000               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000        4.00000000               N/A
+
+
+aprioriSigmas:   "2.0" "3.0" "4.0"
+weights:         25 11.1111 62500
+corrections:     0 0 0
+adjustedSigmas:  "N/A" "N/A" "N/A"
+nicVector:       0 0 0
+qMatrix:
+ New Block 
+
+Residual rms: 3.53553
+
+Modify lidarPoint - setWeights() - solveRadius=true, apriori lat/lon/rad <= 0
+       FreePoint           FREE    2 of 2  3.54      0.00000000      0.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: FreePoint
+Status: FREE
+  Rays: 2 of 2
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE       0.00000000           0.00000000          0.00000000          0.00000000        2.00000000               N/A
+ LONGITUDE       0.00000000           0.00000000          0.00000000          0.00000000        3.00000000               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000        4.00000000               N/A
+
+
+aprioriSigmas:   "2.0" "3.0" "4.0"
+weights:         25 11.1111 62500
+
+Modify lidarPoint - setWeights() - solveRadius=true, apriori lat/lon/rad > 0
+       FreePoint           FREE    2 of 2  3.54      0.00000000      0.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: FreePoint
+Status: FREE
+  Rays: 2 of 2
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE       0.00000000           0.00000000          0.00000000          0.00000000        2.00000000               N/A
+ LONGITUDE       0.00000000           0.00000000          0.00000000          0.00000000        3.00000000               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000        4.00000000               N/A
+
+
+aprioriSigmas:   "2.0" "3.0" "4.0"
+weights:         25 11.1111 62500
+
+Raw lidar control point equal to original?     "No"
+Raw lidar control point is rejected?           "No"
+Adjusted SurfacePoint (Lat, Lon, Rad) =  "0.0" "0.0" "10.0"
+
+Create fixedLidarPoint from empty fixed point, adjusted surface point (90, 180, 10)...
+      FixedPoint          FIXED    0 of 0  0.00     90.00000000    180.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: FixedPoint
+Status: FIXED
+  Rays: 0 of 0
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE      90.00000000           0.00000000          0.00000000         90.00000000             FIXED               N/A
+ LONGITUDE     180.00000000           0.00000000          0.00000000        180.00000000             FIXED               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000               N/A               N/A
+
+
+Modify fixedLidarPoint - setWeights()
+      FixedPoint          FIXED    0 of 0  0.00     90.00000000    180.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: FixedPoint
+Status: FIXED
+  Rays: 0 of 0
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE      90.00000000           0.00000000          0.00000000         90.00000000             FIXED               N/A
+ LONGITUDE     180.00000000           0.00000000          0.00000000        180.00000000             FIXED               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000               N/A               N/A
+
+
+aprioriSigmas:   "NULL" "NULL" "NULL"
+weights:         1e+50 1e+50 1e+50
+
+Create constrainedLidarPoint from empty constrained point, surface point (0, 0, 10)...
+ConstrainedPoint    CONSTRAINED    0 of 0  0.00      0.00000000      0.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: ConstrainedPoint
+Status: CONSTRAINED
+  Rays: 0 of 0
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE       0.00000000           0.00000000          0.00000000          0.00000000               N/A               N/A
+ LONGITUDE       0.00000000           0.00000000          0.00000000          0.00000000               N/A               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000               N/A               N/A
+
+
+Modify constrainedLidarPoint - setWeights() - solveRadius=false
+ConstrainedPoint    CONSTRAINED    0 of 0  0.00      0.00000000      0.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: ConstrainedPoint
+Status: CONSTRAINED
+  Rays: 0 of 0
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE       0.00000000           0.00000000          0.00000000          0.00000000               N/A               N/A
+ LONGITUDE       0.00000000           0.00000000          0.00000000          0.00000000               N/A               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000               N/A               N/A
+
+
+aprioriSigmas:   "NULL" "NULL" "NULL"
+weights:         0 0 1e+50
+
+Modify constrainedLidarPoint - setWeights() - no constraints, solveRadius=true, apriori lat/lon/rad <= 0
+ConstrainedPoint    CONSTRAINED    0 of 0  0.00     32.00000000    120.00000000      1.00000000     28.65696503     36.78815890     38.45488734
+
+ Label: ConstrainedPoint
+Status: CONSTRAINED
+  Rays: 0 of 0
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE      32.00000000           0.00000000          0.00000000         32.00000000       28.65696495       28.65696503
+ LONGITUDE     120.00000000           0.00000000          0.00000000        120.00000000       36.78815884       36.78815890
+    RADIUS       1.00000000           0.00000000          0.00000000          1.00000000       38.45488734       38.45488734
+
+
+aprioriSigmas:   "28.656964947064" "36.788158835093" "38.454887341483"
+weights:         1217.7 1027.41 676.234
+
+Modify constrainedLidarPoint - setWeights() - no constraints, solveRadius=true, apriori lat/lon/rad > 0
+ConstrainedPoint    CONSTRAINED    0 of 0  0.00      0.00000000      0.00000000      0.01000000             N/A             N/A             N/A
+
+ Label: ConstrainedPoint
+Status: CONSTRAINED
+  Rays: 0 of 0
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE       0.00000000           0.00000000          0.00000000          0.00000000        2.00000000               N/A
+ LONGITUDE       0.00000000           0.00000000          0.00000000          0.00000000        3.00000000               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000        4.00000000               N/A
+
+
+aprioriSigmas:   "2.0" "3.0" "4.0"
+weights:         25 11.1111 62500
+
+
+Create constrainedLidarPoint from constrained lidar point with adjusted surface point (32, 120, 1000)...
+ConstrainedPoint    CONSTRAINED    0 of 0  0.00     32.00000000    120.00000000      1.00000000     28.65696503     36.78815890     38.45488734
+
+ Label: ConstrainedPoint
+Status: CONSTRAINED
+  Rays: 0 of 0
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE      32.00000000           0.00000000          0.00000000         32.00000000               N/A       28.65696503
+ LONGITUDE     120.00000000           0.00000000          0.00000000        120.00000000               N/A       36.78815890
+    RADIUS       1.00000000           0.00000000          0.00000000          1.00000000               N/A       38.45488734
+
+
+Modify constrainedLidarPoint - setWeights() - solveRadius=t, lat/lon/rad constrained
+ConstrainedPoint    CONSTRAINED    0 of 0  0.00     32.00000000    120.00000000      1.00000000     28.65696503     36.78815890     38.45488734
+
+ Label: ConstrainedPoint
+Status: CONSTRAINED
+  Rays: 0 of 0
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE      32.00000000           0.00000000          0.00000000         32.00000000       28.65696495       28.65696503
+ LONGITUDE     120.00000000           0.00000000          0.00000000        120.00000000       36.78815884       36.78815890
+    RADIUS       1.00000000           0.00000000          0.00000000          1.00000000       38.45488734       38.45488734
+
+
+aprioriSigmas:   "28.656964947064" "36.788158835093" "38.454887341483"
+weights:         1217.7 1027.41 676.234
+
+Create copy of freeLidarPoint using copy constructor...
+       FreePoint           FREE    2 of 2  3.54      0.00000000      0.00000000      0.01000000             N/A             N/A             N/A
+
+Output for formatBundleOutputDetailString(...) with solveForRadius = false:
+ Label: FreePoint
+Status: FREE
+  Rays: 2 of 2
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE       0.00000000           0.00000000          0.00000000          0.00000000        2.00000000               N/A
+ LONGITUDE       0.00000000           0.00000000          0.00000000          0.00000000        3.00000000               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000        4.00000000               N/A
+
+
+Output for formatBundleOutputDetailString(...) with solveForRadius = true:
+ Label: FreePoint
+Status: FREE
+  Rays: 2 of 2
+
+     Point         Initial               Total               Total              Final             Initial             Final
+Coordinate          Value             Correction          Correction            Value             Accuracy          Accuracy
+                 (dd/dd/km)           (dd/dd/km)           (Meters)           (dd/dd/km)          (Meters)          (Meters)
+  LATITUDE       0.00000000           0.00000000          0.00000000          0.00000000        2.00000000               N/A
+ LONGITUDE       0.00000000           0.00000000          0.00000000          0.00000000        3.00000000               N/A
+    RADIUS       0.01000000           0.00000000          0.00000000          0.01000000        4.00000000               N/A
+
+
+
+Overwrite existing object with fixedLidarPoint information...
       FixedPoint          FIXED    0 of 0  0.00     90.00000000    180.00000000      0.01000000             N/A             N/A             N/A
 
  Label: FixedPoint

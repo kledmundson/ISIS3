@@ -307,6 +307,8 @@ namespace Isis {
    *   @history 2018-02-12 Ken Edmundson - Removed members m_xResiduals, m_yResiduals, and
    *                           m_xyResiduals and made them local to the computeResiduals() method.
    *                           Removed member m_bodyRadii, used only locally in init() method.
+   *   @history 2018-03-02 Ken Edmundson - Added constructor taking LidarData argument. Added
+   *                           m_lidarFileName and m_lidarDataSet members.
    */
   class BundleAdjust : public QObject {
       Q_OBJECT
@@ -450,7 +452,7 @@ namespace Isis {
       QString m_cnetFileName;                                //!< The control net filename.
 
       QVector <BundleControlPointQsp> m_bundleControlPoints;
-      QVector <BundleControlPointQsp> m_bundleLidarPoints; /**!< Vectors of control and lidar
+      QVector <BundleControlPointQsp> m_bundleLidarPoints;   /**!< Vectors of control and lidar
                                                                    control points.*/
       QString m_lidarFileName;                               //!< Input lidar point filename.
       LidarData m_lidarDataSet;                              //!< QList of lidar points.

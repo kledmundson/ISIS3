@@ -255,6 +255,9 @@
     <change name="Ken Edmundson" date="2017-11-01">
       Added interface for piecewise polynomials.
     </change>
+    <change name="Ken Edmundson" date="2017-11-01">
+      Added interface for lidar data file input.
+    </change>
   </history>
 
   <groups>

@@ -2,6 +2,7 @@
 
 #include <QDebug>
 
+//#include "BundleLidarRangeConstraint.h"
 #include "ControlMeasure.h"
 #include "Latitude.h"
 #include "LidarControlPoint.h"
@@ -70,4 +71,43 @@ namespace Isis {
     m_nicVector = src.m_nicVector;
 */
   }
+
+
+  /**
+   * Adds simultaneous measure to this BundleLidarControlPoint.
+   *
+   * @param measure QSharedPointer to measure from image acquired simultaneously with lidar point.
+   */
+  void BundleLidarControlPoint::addSimultaneousMeasure(BundleMeasureQsp measure) {
+    m_simultaneousMeasures.append(measure);
+  }
+
+
+  /**
+   * Checks if QVector of any simultaneous measures have the input serial number.
+   *
+   * @param serialNumberString Serial number to check for.
+   */
+  bool BundleLidarControlPoint::containsSerialNumber(QString serialNumberString) {
+    for (int i = 0; i < m_simultaneousMeasures.size(); i++) {
+      if (m_simultaneousMeasures.at(i)->cubeSerialNumber() == serialNumberString) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+
+  /**
+   * applies lidar range constraint (not sure if this actually makes sense)
+   *
+   */
+  bool BundleLidarControlPoint::applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
+                                                          SparseBlockColumnMatrix &N12,
+                                                          LinearAlgebra::Vector &n2,
+                                                          SparseBlockMatrix sparseNormals) {
+    int fred=1;
+    return true;
+  }  
 }

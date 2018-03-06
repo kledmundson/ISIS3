@@ -53,19 +53,7 @@ void IsisMain() {
 
   QString cnetFile = ui.GetFileName("CNET");
   QString cubeList = ui.GetFileName("FROMLIST");
-
-  // validate input image list file exists
-  if (!QFile::exists(cubeList)) {
-    string msg = "Input list file does not exist";
-    throw IException(IException::User, msg, _FILEINFO_);
-  }
-
-  // validate input control network file exists
-  if (!QFile::exists(cnetFile)) {
-    string msg = "Input control network file does not exist";
-    throw IException(IException::User, msg, _FILEINFO_);
-  }
-
+  
   // retrieve settings from jigsaw gui
   
   BundleSettingsQsp settings = bundleSettings(ui);
@@ -339,16 +327,10 @@ QList<BundleObservationSolveSettings> observationSolveSettings(UserInterface &ui
     angularAccelerationAprioriSigma = ui.GetDouble("CAMERA_ANGULAR_ACCELERATION_SIGMA");
   }
 
-  int pointingSegments = ui.GetInteger("POINTINGSEGMENTS");
-  if (pointingSolveOption == 0) {
-    pointingSegments = 0;
-  }
-
   observationSolveSettings.setInstrumentPointingSettings(pointingSolveOption,
                                                           ui.GetBoolean("TWIST"),
                                                           ui.GetInteger("CKDEGREE"),
                                                           ui.GetInteger("CKSOLVEDEGREE"),
-                                                          pointingSegments,
                                                           ui.GetBoolean("OVEREXISTING"),
                                                           anglesAprioriSigma,
                                                           angularVelocityAprioriSigma,
@@ -371,16 +353,9 @@ QList<BundleObservationSolveSettings> observationSolveSettings(UserInterface &ui
     positionAccelerationAprioriSigma = ui.GetDouble("SPACECRAFT_ACCELERATION_SIGMA");
   }
 
-  int positionSegments = ui.GetInteger("POSITIONSEGMENTS");
-  if (positionSolveOption == 0) {
-    positionSegments = 0;
-  }
-
-
   observationSolveSettings.setInstrumentPositionSettings(positionSolveOption,
                                                           ui.GetInteger("SPKDEGREE"),
                                                           ui.GetInteger("SPKSOLVEDEGREE"),
-                                                          positionSegments,
                                                           ui.GetBoolean("OVERHERMITE"),
                                                           positionAprioriSigma,
                                                           positionVelocityAprioriSigma,
