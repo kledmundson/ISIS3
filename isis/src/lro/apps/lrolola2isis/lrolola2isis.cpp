@@ -97,7 +97,7 @@ void IsisMain() {
               ControlMeasure *measure = new ControlMeasure;
               measure->SetCoordinate(camera->Sample(), camera->Line()); 
               measure->SetCubeSerialNumber(images[j].sn);
-              measure->SetType(ControlMeasure::MeasureType::Lidar);
+              measure->SetType(ControlMeasure::MeasureType::Candidate);
           
               lidarPoint->Add(measure);
             }
