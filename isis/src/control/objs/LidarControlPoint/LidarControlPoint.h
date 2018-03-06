@@ -61,7 +61,7 @@ namespace Isis {
     double range();
     double sigmaRange();
     iTime time();
-    
+
   private:
     double m_range;       //!< The range
     double m_sigmaRange;  //!< The sigma range
