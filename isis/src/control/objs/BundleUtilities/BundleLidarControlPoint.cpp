@@ -114,9 +114,9 @@ namespace Isis {
     m_simultaneousMeasures.append(measure);
 
     // create new lidar range constraint and add to vector
-    BundleLidarRangeConstraintQsp constraintqsp
-        = BundleLidarRangeConstraintQsp(new BundleLidarRangeConstraint(measure));
-    m_lidarRangeConstraints.append(constraintqsp);
+//    BundleLidarRangeConstraintQsp constraintqsp
+//        = BundleLidarRangeConstraintQsp(new BundleLidarRangeConstraint(measure));
+//    m_lidarRangeConstraints.append(constraintqsp);
   }
 
 
