@@ -57,6 +57,8 @@ BundleControlPoint.cpp
 BundleControlPoint.h
 BundleLidarControlPoint.cpp
 BundleLidarControlPoint.h
+BundleLidarMeasure.cpp
+BundleLidarMeasure.h
 BundleLidarRangeConstraint.cpp
 BundleLidarRangeConstraint.h
 BundleMeasure.cpp
@@ -83,3 +85,6 @@ LidarControlPoint.cpp
 LidarControlPoint.h
 LidarData.cpp
 LidarData.h
+SpicePosition.cpp
+SpicePosition.h
+

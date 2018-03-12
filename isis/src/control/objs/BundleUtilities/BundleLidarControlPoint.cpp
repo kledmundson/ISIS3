@@ -1,8 +1,10 @@
 #include "BundleLidarControlPoint.h"
 
+// Qt Library
 #include <QDebug>
 
-//#include "BundleLidarRangeConstraint.h"
+// Isis library
+#include "BundleLidarRangeConstraint.h"
 #include "ControlMeasure.h"
 #include "Latitude.h"
 #include "LidarControlPoint.h"
@@ -20,15 +22,45 @@ namespace Isis {
    *                     construct this BundleLidarControlPoint.
    */
   BundleLidarControlPoint::BundleLidarControlPoint(LidarControlPoint *point)
-    : BundleControlPoint((ControlPoint*)  point) {
+    : BundleControlPoint() {
 
-    // additional lidar specific initializations
+    // setup vector of BundleLidarMeasures for this control point
+    int numMeasures = point->GetNumMeasures();
+    for (int i = 0; i < numMeasures; i++) {
+      ControlMeasure *controlMeasure = point->GetMeasure(i);
+      if (controlMeasure->IsIgnored()) {
+        continue;
+      }
+
+      addMeasure(controlMeasure);
+    }
+  }
+
+
+  /**
+   * Creates a BundleMeasure from the given ControlMeasure and appends it to
+   * this BundleControlPoint's measure list.
+   *
+   * @param controlMeasure The ControlMeasure to be converted.
+   *
+   * @return BundleLidarMeasureQsp A pointer to the new BundleLidarMeasure.
+   */
+  BundleLidarMeasureQsp BundleLidarControlPoint::addMeasure(ControlMeasure *controlMeasure) {
+
+    BundleLidarMeasureQsp bundleLidarMeasure
+        = BundleLidarMeasureQsp( new BundleLidarMeasure(controlMeasure, this) );
+
+    append(bundleLidarMeasure);
+
+    return bundleLidarMeasure;
   }
 
 
   /**
    * Copy constructor. Constructs a BundleLidarControlPoint object from an existing
    * BundleLidarControlPoint.
+   *
+   * TODO: complete
    *  
    * @param src The BundleLidarControlPoint to be copied.
    */
@@ -80,6 +112,11 @@ namespace Isis {
    */
   void BundleLidarControlPoint::addSimultaneousMeasure(BundleMeasureQsp measure) {
     m_simultaneousMeasures.append(measure);
+
+    // create new lidar range constraint and add to vector
+    BundleLidarRangeConstraintQsp constraintqsp
+        = BundleLidarRangeConstraintQsp(new BundleLidarRangeConstraint(measure));
+    m_lidarRangeConstraints.append(constraintqsp);
   }
 
 
@@ -100,14 +137,31 @@ namespace Isis {
 
 
   /**
-   * applies lidar range constraint (not sure if this actually makes sense)
+   * Returns number of image measures simultaneous to lidar observation.
    *
+   * @return int Number of image measures simultaneous to lidar observation.
    */
-  bool BundleLidarControlPoint::applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
-                                                          SparseBlockColumnMatrix &N12,
-                                                          LinearAlgebra::Vector &n2,
-                                                          SparseBlockMatrix sparseNormals) {
-    int fred=1;
-    return true;
-  }  
+  int BundleLidarControlPoint::numberSimultaneousMeasures() {
+    return m_simultaneousMeasures.size();
+  }
+
+
+  /**
+   * Returns range of raw lidar control point.
+   *
+   * @return double Range of raw lidar control point.
+   */
+  double BundleLidarControlPoint::range() {
+    return ((LidarControlPoint*)rawControlPoint())->range();
+  }
+
+
+  /**
+   * Returns a priori range sigma of raw lidar control point.
+   *
+   * @return double a priori range sigma of raw lidar control point.
+   */
+  double BundleLidarControlPoint::rangeSigma() {
+    return ((LidarControlPoint*)rawControlPoint())->sigmaRange();
+  }
 }

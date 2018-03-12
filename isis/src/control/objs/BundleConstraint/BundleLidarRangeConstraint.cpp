@@ -5,7 +5,11 @@
 
 // Isis Library
 #include "BundleLidarControlPoint.h"
+#include "BundleObservation.h"
+#include "Camera.h"
 #include "LidarControlPoint.h"
+#include "LinearAlgebra.h"
+#include "Sensor.h"
 #include "SpicePosition.h"
 #include "SpiceRotation.h"
 
@@ -33,76 +37,22 @@ namespace Isis {
    *
    * @param parentObservation parent BundleObservation
    */
-  BundleLidarRangeConstraint::
-      BundleLidarRangeConstraint(BundleLidarControlPointQsp parentBundleLidarControlPoint) {
+  BundleLidarRangeConstraint::BundleLidarRangeConstraint(BundleMeasureQsp bundleMeasure) {
 
-    m_parentBundleLidarControlPoint = parentBundleLidarControlPoint;
+    m_bundleLidarControlPoint = NULL;
+
+    m_bundleMeasure = bundleMeasure;
+    m_bundleObservation = bundleMeasure->parentBundleObservation();
+    m_bundleLidarControlPoint
+        = (BundleLidarControlPoint*)(bundleMeasure->parentControlPoint());
+
+    m_numberCoefficients = m_bundleObservation->numberPositionParameters();
 
     // initialize variables
-/*
-    int nSpkParameters = 0;
-    int nCkParameters = 0;
+    m_coeffRangeImage.resize(1,m_numberCoefficients);
+    m_coeffRangePoint.resize(1,3);
+    m_coeffRangeRHS.resize(1);
 
-    if (solveSettings->instrumentPositionSolveOption() !=
-        BundleObservationSolveSettings::NoPositionFactors) {
-
-      m_numberSpkCoefficients = solveSettings->numberCameraPositionCoefficientsSolved();
-      m_numberSpkSegments = solveSettings->numberSpkPolySegments();
-      m_numberSpkBoundaries = m_numberSpkSegments - 1;
-
-      nSpkParameters = 3 * m_numberSpkCoefficients;
-
-      // knots contain scaled time
-      m_spkKnots = parentObservation->spicePosition()->scaledPolynomialKnots();
-
-      // remove end knots, leaving only knots at segment boundaries
-      if (m_spkKnots.size() > 2) {
-        m_spkKnots.pop_back();
-        m_spkKnots.erase(m_spkKnots.begin());
-      }
-    }
-
-    if (solveSettings->instrumentPointingSolveOption() !=
-        BundleObservationSolveSettings::NoPointingFactors) {
-
-      m_numberCkCoefficients = solveSettings->numberCameraAngleCoefficientsSolved();
-      m_numberCkSegments = solveSettings->numberCkPolySegments();
-      m_numberCkBoundaries = m_numberCkSegments - 1;
-
-      nCkParameters = 2 * m_numberCkCoefficients;
-      if (solveSettings->solveTwist()) {
-        nCkParameters += m_numberCkCoefficients;
-      }
-
-      // knots contain scaled time
-      m_ckKnots = parentObservation->spiceRotation()->scaledPolynomialKnots();
-
-      // remove end knots, leaving only knots at segment boundaries
-      if (m_ckKnots.size() > 2) {
-        m_ckKnots.pop_back();
-        m_ckKnots.erase(m_ckKnots.begin());
-      }
-    }
-
-    if (nSpkParameters > 0) {
-      m_numberConstraintEquations = m_numberSpkBoundaries * (m_numberSpkCoefficients-1) * 3.0;
-    }
-    if (nCkParameters > 0) {
-      if (m_parentObservation->solveSettings()->solveTwist()) {
-        m_numberConstraintEquations += m_numberCkBoundaries * (m_numberCkCoefficients-1) * 3.0;
-      }
-      else {
-        m_numberConstraintEquations += m_numberCkBoundaries * (m_numberCkCoefficients-1) * 2.0;
-      }
-    }
-
-    m_numberParameters = m_numberSpkSegments * nSpkParameters + m_numberCkSegments * nCkParameters;
-
-    m_numberSpkSegmentParameters = nSpkParameters;
-    m_numberCkSegmentParameters = nCkParameters;
-
-    constructMatrices();
-*/
   }
 
 
@@ -121,29 +71,15 @@ namespace Isis {
    * @param src Source BundleLidarRangeConstraint to copy.
    */
   BundleLidarRangeConstraint:: BundleLidarRangeConstraint(const BundleLidarRangeConstraint &src) {
-    m_parentBundleLidarControlPoint = src.m_parentBundleLidarControlPoint;
-/*
-    m_numberSegmentParameters = src.m_numberSegmentParameters;
-    m_numberParameters = src.m_numberParameters;
-    m_numberConstraintEquations = src.m_numberConstraintEquations;
+    m_bundleMeasure = src.m_bundleMeasure;
+    m_bundleObservation = src.m_bundleObservation;
+    m_bundleLidarControlPoint = src.m_bundleLidarControlPoint; //TODO: careful here
 
-    m_ckKnots = src.m_ckKnots;
-    m_spkKnots = src.m_spkKnots;
-    m_numberCkCoefficients = src.m_numberCkCoefficients;
-    m_numberSpkCoefficients = src.m_numberSpkCoefficients;
-    m_numberCkSegments = src.m_numberCkSegments;
-    m_numberSpkSegments = src.m_numberSpkSegments;
-    m_numberCkBoundaries = src.m_numberCkBoundaries;
-    m_numberSpkBoundaries = src.m_numberSpkBoundaries;
-    m_numberCkSegmentParameters = src.m_numberCkSegmentParameters;
-    m_numberSpkSegmentParameters = src.m_numberSpkSegmentParameters;
+    m_numberCoefficients = src.m_numberCoefficients;
 
-    m_designMatrix = src.m_designMatrix;
-    m_normalsSpkMatrix = src.m_normalsSpkMatrix;
-    m_normalsCkMatrix = src.m_normalsCkMatrix;
-    m_rightHandSide = src.m_rightHandSide;
-    m_omcVector = src.m_omcVector;
-*/
+    m_coeffRangeImage = src.m_coeffRangeImage;
+    m_coeffRangePoint = src.m_coeffRangePoint;
+    m_coeffRangeRHS = src.m_coeffRangeRHS;
   }
 
 
@@ -162,29 +98,15 @@ namespace Isis {
 
     // Prevent self assignment
     if (this != &src) {
-      m_parentBundleLidarControlPoint = src.m_parentBundleLidarControlPoint;
-/*
-      m_numberSegmentParameters = src.m_numberSegmentParameters;
-      m_numberParameters = src.m_numberParameters;
-      m_numberConstraintEquations = src.m_numberConstraintEquations;
+      m_bundleMeasure = src.m_bundleMeasure;
+      m_bundleObservation = src.m_bundleObservation;
+      m_bundleLidarControlPoint = src.m_bundleLidarControlPoint; //TODO: careful here
 
-      m_ckKnots = src.m_ckKnots;
-      m_spkKnots = src.m_spkKnots;
-      m_numberCkCoefficients = src.m_numberCkCoefficients;
-      m_numberSpkCoefficients = src.m_numberSpkCoefficients;
-      m_numberCkSegments = src.m_numberCkSegments;
-      m_numberSpkSegments = src.m_numberSpkSegments;
-      m_numberCkBoundaries = src.m_numberCkBoundaries;
-      m_numberSpkBoundaries = src.m_numberSpkBoundaries;
-      m_numberCkSegmentParameters = src.m_numberCkSegmentParameters;
-      m_numberSpkSegmentParameters = src.m_numberSpkSegmentParameters;
+      m_numberCoefficients = src.m_numberCoefficients;
 
-      m_designMatrix = src.m_designMatrix;
-      m_normalsSpkMatrix = src.m_normalsSpkMatrix;
-      m_normalsCkMatrix = src.m_normalsCkMatrix;
-      m_rightHandSide = src.m_rightHandSide;
-      m_omcVector = src.m_omcVector;
-*/
+      m_coeffRangeImage = src.m_coeffRangeImage;
+      m_coeffRangePoint = src.m_coeffRangePoint;
+      m_coeffRangeRHS = src.m_coeffRangeRHS;
     }
 
     return *this;
@@ -199,51 +121,38 @@ namespace Isis {
    *
    * @param src Source BundleLidarRangeConstraint to assign state from.
    */
-  bool BundleLidarRangeConstraint::formRangeConstraint() {
+  bool BundleLidarRangeConstraint::formConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
+                                                  SparseBlockColumnMatrix &N12,
+                                                  LinearAlgebra::Vector &n2,
+                                                  LinearAlgebra::VectorCompressed &n1,
+                                                  SparseBlockMatrix& sparseNormals) {
+    m_coeffRangeImage.clear();
+    m_coeffRangePoint.clear();
+    m_coeffRangeRHS.clear();
 
-//    bool BundleLidarRangeConstraint::formRangeConstraint(symmetric_matrix<double, upper>&N22,
-//                                                         SSparseBlockColumnMatrix& N12,
-//                                                         compressed_vector<double>& n1,
-//                                                         vector<double>& n2,
-//                                                         Camera* camera,
-//                                                         const ControlPoint* point,
-//                                                         int nImageIndex,
-//                                                         double range,
-//                                                         double rangeSigma) {
-/*
-    int i;
+    std::cout << "image" << std::endl << m_coeffRangeImage << std::endl;
+    std::cout << "point" << std::endl << m_coeffRangePoint << std::endl;
+    std::cout << "rhs" << std::endl << m_coeffRangeRHS << std::endl;
 
-    LinearAlgebra::Matrix coeff_range_image(1,m_nNumImagePartials);
-    LinearAlgebra::Matrix coeff_range_point3D(1,3);
-    LinearAlgebra::Vector coeff_range_RHS(1);
+    ControlPoint* rawControlPoint = m_bundleLidarControlPoint->rawControlPoint();
 
-    coeff_range_image.clear();
-    coeff_range_point3D.clear();
-    coeff_range_RHS.clear();
+    // get surface point in body-fixed coordinates
+    double xPoint = rawControlPoint->GetAdjustedSurfacePoint().GetX().kilometers();
+    double yPoint = rawControlPoint->GetAdjustedSurfacePoint().GetY().kilometers();
+    double zPoint = rawControlPoint->GetAdjustedSurfacePoint().GetZ().kilometers();
 
-    std::cout << "image" << std::endl << coeff_range_image << std::endl;
-    std::cout << "point" << std::endl << coeff_range_point3D << std::endl;
-    std::cout << "rhs" << std::endl << coeff_range_RHS << std::endl;
-
-    // compute partial derivatives for camstation-to-range point condition
-
-    // get ground point in body-fixed coordinates
-    double xPoint
-        = m_parentBundleLidarControlPoint->rawControlPoint()->GetAdjustedSurfacePoint().GetX().kilometers();
-    double yPoint
-        = m_parentBundleLidarControlPoint->rawControlPoint()->GetAdjustedSurfacePoint().GetY().kilometers();
-    double zPoint
-        = m_parentBundleLidarControlPoint->rawControlPoint()->GetAdjustedSurfacePoint().GetZ().kilometers();
+    Camera* camera = m_bundleMeasure->camera();
 
     // get spacecraft position in J2000 coordinates
-    LinearAlgebra::Vector CameraJ2KXYZ(3);
-    CameraJ2KXYZ = camera->instrumentPosition()->Coordinate();
+    std::vector<double> CameraJ2KXYZ(3);
+    CameraJ2KXYZ = m_bundleMeasure->camera()->instrumentPosition()->Coordinate();
+
     double xCameraJ2K  = CameraJ2KXYZ[0];
     double yCameraJ2K  = CameraJ2KXYZ[1];
     double zCameraJ2K  = CameraJ2KXYZ[2];
 
     // get spacecraft position in body-fixed coordinates
-    LinearAlgebra::Vector CameraBodyFixedXYZ(3);
+    std::vector<double> CameraBodyFixedXYZ(3);
 
     // "InstrumentPosition()->Coordinate()" returns the instrument coordinate in J2000;
     // then the body rotation "ReferenceVector" rotates that into body-fixed coordinates
@@ -264,6 +173,9 @@ namespace Isis {
     double computed_distance = sqrt(dX*dX+dY*dY+dZ*dZ);
 
     // observed distance - computed distance
+    double range = m_bundleLidarControlPoint->range();
+    double rangeSigma = m_bundleLidarControlPoint->rangeSigma();
+
     double observed_computed = range - computed_distance;
 
     // get matrix that rotates spacecraft from J2000 to body-fixed
@@ -287,102 +199,88 @@ namespace Isis {
     double a2 = m21*xCameraJ2K + m22*yCameraJ2K + m23*zCameraJ2K - yPoint;
     double a3 = m31*xCameraJ2K + m32*yCameraJ2K + m33*zCameraJ2K - zPoint;
 
-    coeff_range_image(0,0) = (m11*a1 + m21*a2 + m31*a3)/computed_distance;
-    coeff_range_image(0,1) = (m12*a1 + m22*a2 + m32*a3)/computed_distance;
-    coeff_range_image(0,2) = (m13*a1 + m23*a2 + m33*a3)/computed_distance;
+    m_coeffRangeImage(0,0) = (m11*a1 + m21*a2 + m31*a3)/computed_distance;
+    m_coeffRangeImage(0,1) = (m12*a1 + m22*a2 + m32*a3)/computed_distance;
+    m_coeffRangeImage(0,2) = (m13*a1 + m23*a2 + m33*a3)/computed_distance;
 
     // partials w/r to point
     // TODO: what if we are bundling points in body-fixed XYZ instead of lat, lon, radius?
     //       I think it dramatically simplifies the partial derivatives.
-    double lat    = point->GetAdjustedSurfacePoint().GetLatitude().radians();
-    double lon    = point->GetAdjustedSurfacePoint().GetLongitude().radians();
-    double radius = point->GetAdjustedSurfacePoint().GetLocalRadius().kilometers();
+    double lat    = rawControlPoint->GetAdjustedSurfacePoint().GetLatitude().radians();
+    double lon    = rawControlPoint->GetAdjustedSurfacePoint().GetLongitude().radians();
+    double radius = rawControlPoint->GetAdjustedSurfacePoint().GetLocalRadius().kilometers();
 
     double sinlat = sin(lat);
     double coslat = cos(lat);
     double sinlon = sin(lon);
     double coslon = cos(lon);
 
-    coeff_range_point3D(0,0) =  radius*(sinlat*coslon*a1 + sinlat*sinlon*a2 - coslat*a3)/computed_distance;
-    coeff_range_point3D(0,1) =  radius*(coslat*sinlon*a1 - coslat*coslon*a2)/computed_distance;
-    coeff_range_point3D(0,2) =  -(coslat*coslon*a1 + coslat*sinlon*a2 + sinlat*a3)/computed_distance;
+    m_coeffRangePoint(0,0) =  radius*(sinlat*coslon*a1 + sinlat*sinlon*a2 - coslat*a3)/computed_distance;
+    m_coeffRangePoint(0,1) =  radius*(coslat*sinlon*a1 - coslat*coslon*a2)/computed_distance;
+    m_coeffRangePoint(0,2) =  -(coslat*coslon*a1 + coslat*sinlon*a2 + sinlat*a3)/computed_distance;
 
     // right hand side
-    coeff_range_RHS(0) = observed_computed;
+    m_coeffRangeRHS(0) = observed_computed;
 
     // multiply coefficients by observation weight
     double dObservationWeight = 1.0/(rangeSigma*0.001); // converting sigma from meters to km
-    coeff_range_image   *= dObservationWeight;
-    coeff_range_point3D *= dObservationWeight;
-    coeff_range_RHS     *= dObservationWeight;
+    m_coeffRangeImage *= dObservationWeight;
+    m_coeffRangePoint *= dObservationWeight;
+    m_coeffRangeRHS   *= dObservationWeight;
 
     // form matrices to be added to normal equation auxiliaries
-    static vector<double> n1_image(m_nNumImagePartials);
+    static vector<double> n1_image(m_numberCoefficients);  //TODO: static is problem?
     n1_image.clear();
 
     // form N11 for the condition partials for image
-    static symmetric_matrix<double, upper> N11(m_nNumImagePartials);
-    N11.clear();
+//    static symmetric_matrix<double, upper> N11(m_numberCoefficients);
+//    N11.clear();
 
-//  std::cout << "N11" << std::endl << N11 << std::endl;
+    std::cout << "image" << std::endl << m_coeffRangeImage << std::endl;
+    std::cout << "point" << std::endl << m_coeffRangePoint << std::endl;
+    std::cout << "rhs" << std::endl << m_coeffRangeRHS << std::endl;
 
-    std::cout << "image" << std::endl << coeff_range_image << std::endl;
-    std::cout << "point" << std::endl << coeff_range_point3D << std::endl;
-    std::cout << "rhs" << std::endl << coeff_range_RHS << std::endl;
 
-    N11 = prod(trans(coeff_range_image), coeff_range_image);
+//    std::cout << "N11" << std::endl << N11 << std::endl;
 
-    std::cout << "N11" << std::endl << N11 << std::endl;
+    int nImageIndex = m_bundleMeasure->positionNormalsBlockIndex();
 
-    int t = m_nNumImagePartials * nImageIndex;
+    int t = m_numberCoefficients * nImageIndex;
 
-    // insert submatrix at column, row
-    m_SparseNormals.InsertMatrixBlock(nImageIndex, nImageIndex, m_nNumImagePartials,
-                                      m_nNumImagePartials);
+    (*(*sparseNormals[nImageIndex])[nImageIndex])
+        += prod(trans(m_coeffRangeImage), m_coeffRangeImage);
 
-    (*(*m_SparseNormals[nImageIndex])[nImageIndex]) += N11;
-
-    std::cout << (*(*m_SparseNormals[nImageIndex])[nImageIndex]) << std::endl;
+    std::cout << (*(*sparseNormals[nImageIndex])[nImageIndex]) << std::endl;
 
     // form N12_Image
-    static matrix<double> N12_Image(m_nNumImagePartials, 3);
-    N12_Image.clear();
+//  std::cout << "N12_Image" << std::endl << N12_Image << std::endl;
 
-    N12_Image = prod(trans(coeff_range_image), coeff_range_point3D);
-
-    std::cout << "N12_Image" << std::endl << N12_Image << std::endl;
-
-    // insert N12_Image into N12
-//  for (i = 0; i < m_nNumImagePartials; i++)
-//    for (j = 0; j < 3; j++)
-//      N12(i + t, j) += N12_Image(i, j);
-    N12.InsertMatrixBlock(nImageIndex, m_nNumImagePartials, 3);
-    *N12[nImageIndex] += N12_Image;
+    *N12[nImageIndex] += prod(trans(m_coeffRangeImage), m_coeffRangePoint);
 
 //  printf("N12\n");
 //  std::cout << N12 << std::endl;
 
     // form n1
-    n1_image = prod(trans(coeff_range_image), coeff_range_RHS);
+    n1_image = prod(trans(m_coeffRangeImage), m_coeffRangeRHS);
 
-  std::cout << "n1_image" << std::endl << n1_image << std::endl;
+    std::cout << "n1_image" << std::endl << n1_image << std::endl;
 
     // insert n1_image into n1
-    for (i = 0; i < m_nNumImagePartials; i++)
+    for (int i = 0; i < m_numberCoefficients; i++)
       n1(i + t) += n1_image(i);
 
     // form N22
-    N22 += prod(trans(coeff_range_point3D), coeff_range_point3D);
+    N22 += prod(trans(m_coeffRangePoint), m_coeffRangePoint);
 
-  std::cout << "N22" << std::endl << N22 << std::endl;
+    std::cout << "N22" << std::endl << N22 << std::endl;
 
-  std::cout << "n2" << std::endl << n2 << std::endl;
+    std::cout << "n2" << std::endl << n2 << std::endl;
 
     // form n2
-    n2 += prod(trans(coeff_range_point3D), coeff_range_RHS);
+    n2 += prod(trans(m_coeffRangePoint), m_coeffRangeRHS);
 
-  std::cout << "n2" << std::endl << n2 << std::endl;
-*/
+    std::cout << "n2" << std::endl << n2 << std::endl;
+
     return true;
   }
 

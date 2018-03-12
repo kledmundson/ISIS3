@@ -30,6 +30,10 @@
 #include "SparseBlockMatrix.h"
 
 namespace Isis {
+  class BundleMeasure;
+  typedef QSharedPointer<BundleMeasure> BundleMeasureQsp;
+  class BundleObservation;
+  typedef QSharedPointer<BundleObservation> BundleObservationQsp;
   class BundleLidarControlPoint;
   typedef QSharedPointer<BundleLidarControlPoint> BundleLidarControlPointQsp;
 
@@ -48,7 +52,7 @@ namespace Isis {
     public:
       // constructors
       BundleLidarRangeConstraint();
-      BundleLidarRangeConstraint(BundleLidarControlPointQsp parentBundleLidarPoint);
+      BundleLidarRangeConstraint(BundleMeasureQsp bundleMeasure);
 
       // copy constructor
       BundleLidarRangeConstraint(const BundleLidarRangeConstraint &src);
@@ -59,9 +63,13 @@ namespace Isis {
       // Assignment operator
       BundleLidarRangeConstraint &operator= (const BundleLidarRangeConstraint &src);
 
-      bool formRangeConstraint();
+      bool formConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
+                          SparseBlockColumnMatrix &N12,
+                          LinearAlgebra::Vector &n2,
+                          LinearAlgebra::VectorCompressed &n1,
+                          SparseBlockMatrix& sparseNormals);
 
-        void updateRightHandSide();
+      void updateRightHandSide();
       SparseBlockMatrix &normalsSpkMatrix();
       LinearAlgebra::Vector &rightHandSideVector();
 
@@ -72,15 +80,20 @@ namespace Isis {
       void positionContinuity(int &designRow);
 
       //! parent BundleLidarControlPoint
-      QSharedPointer<BundleLidarControlPoint> m_parentBundleLidarControlPoint;
+      BundleMeasureQsp m_bundleMeasure;
+      BundleObservationQsp m_bundleObservation;
+      BundleLidarControlPoint* m_bundleLidarControlPoint;
 
-      // spk related members
-      int m_numberSpkCoefficients;                             //! # coefficients
+      int m_numberCoefficients;                                //! # coefficients
 
       LinearAlgebra::MatrixCompressed m_designMatrix;          //! design matrix
       SparseBlockMatrix m_normalsSpkMatrix;                    //! normals contribution to position
       LinearAlgebra::Vector m_rightHandSide;                   //! right hand side of normals
       LinearAlgebra::Vector m_omcVector;                       //! observed minus corrected vector
+
+      LinearAlgebra::Matrix m_coeffRangeImage;
+      LinearAlgebra::Matrix m_coeffRangePoint;
+      LinearAlgebra::Vector m_coeffRangeRHS;
   };
 
   //! Typdef for BundleLidarRangeConstraint QSharedPointer.

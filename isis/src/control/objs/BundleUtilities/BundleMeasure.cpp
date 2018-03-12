@@ -469,4 +469,20 @@ namespace Isis {
     }
     return m_parentObservation->index();
   }
+
+  /**
+   * applies lidar range constraint (not sure if this actually makes sense)
+   *
+   * @param N22 Contribution (3x3) to normal equations matrix for a control point.
+   * @param N12 Contribution to normal equations matrix connecting a point and an image.
+   * @param n2 Right hand side vector (3x1).
+   * @param sparseNormals Reduced normal equations matrix.
+   */
+  bool BundleMeasure::applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
+                                                     SparseBlockColumnMatrix &N12,
+                                                     LinearAlgebra::Vector &n2,
+                                                     LinearAlgebra::VectorCompressed &n1,
+                                                     SparseBlockMatrix &sparseNormals) {
+    return false;
+  }
 }

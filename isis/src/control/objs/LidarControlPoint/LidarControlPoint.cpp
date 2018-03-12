@@ -6,7 +6,6 @@
 #include "ControlPoint.h"
 #include "Cube.h"
 #include "IException.h"
-#include "iTime.h"
 
 using namespace std;
 
@@ -141,4 +140,20 @@ namespace Isis {
   QList < QString > LidarControlPoint::snSimultaneous() const{
     return *m_snSimultaneous;
   }
+
+
+  /**
+   * Returns true if input serial number is in list of simultaneous image serial numbers
+   *
+   * @param serialNumber serial number to check for
+   *
+   * @return bool true if serialNumber is in simultaneous list
+   */
+  bool LidarControlPoint::hasSimultaneousMeasure(QString serialNumber) {
+    if (m_snSimultaneous->contains(serialNumber)) {
+      return true;
+    }
+    return false;
+  }
+
 }

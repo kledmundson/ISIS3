@@ -26,7 +26,9 @@
 #include <QSharedPointer>
 #include <QVector>
 
+// Isis Library
 #include "BundleControlPoint.h"
+#include "BundleLidarMeasure.h"
 #include "BundleLidarRangeConstraint.h"
 #include "BundleMeasure.h"
 #include "BundleSettings.h"
@@ -35,6 +37,7 @@
 
 namespace Isis {
 
+  class BundleLidarMeasure;
   class LidarControlPoint;
 
   /**
@@ -59,27 +62,29 @@ namespace Isis {
 //      BundleLidarControlPoint(const BundleLidarControlPoint &src);
       ~BundleLidarControlPoint();
 
+      // mutators
+      void addSimultaneousMeasure(BundleMeasureQsp simMeasure);
+
       // copy
       BundleLidarControlPoint &operator=(const BundleLidarControlPoint &src);// ??? not implemented
       void copy(const BundleLidarControlPoint &src);
 
+      // accessors
+      double range();
+      double rangeSigma();
+      int numberSimultaneousMeasures();
       bool containsSerialNumber(QString serialNumberString);
 
       // mutators
-      void addSimultaneousMeasure(BundleMeasureQsp simMeasure);
+      BundleLidarMeasureQsp addMeasure(ControlMeasure *controlMeasure);
 
       QVector<BundleMeasureQsp> m_simultaneousMeasures;
-
-      bool applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
-                                     SparseBlockColumnMatrix &N12,
-                                     LinearAlgebra::Vector &n2,
-                                     SparseBlockMatrix sparseNormals);
 
       // string format methods
 
     private:
       //!< pointer to the control point object this represents
-      BundleLidarRangeConstraintQsp m_lidarRangeConstraint;
+      QVector<BundleLidarRangeConstraintQsp> m_lidarRangeConstraints;
   };
 
   // typedefs

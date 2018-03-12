@@ -65,16 +65,18 @@ namespace Isis {
    *   @history 2016-08-15 Jesse Mapel - Changed contained member data type to a shared pointer.
    *                           Added wrapper methods for several ControlPoint methods.
    *                           Fixes #4159.
-   *   @history 2016-10-27 Tyler Wilson - Modified formatRadiusAprioriSigmaString, formatAprioriSigmaString,
-   *                          and formatBundleOutputDetailString to accept a third argument (bool solveRadius)
-   *                          with a default value = false.  References #4317.
+   *   @history 2016-10-27 Tyler Wilson - Modified formatRadiusAprioriSigmaString,
+   *                           formatAprioriSigmaString, and formatBundleOutputDetailString to
+   *                           accept a third argument (bool solveRadius) with a default
+   *                           value = false.  References #4317.
    */
   class BundleControlPoint : public QVector<BundleMeasureQsp> {
 
     public:
-      BundleControlPoint(ControlPoint *point); // default constructor
+      BundleControlPoint(); // default constructor
+      BundleControlPoint(ControlPoint *point);
       BundleControlPoint(const BundleControlPoint &src);
-      ~BundleControlPoint();
+      virtual ~BundleControlPoint();
 
       // copy
       BundleControlPoint &operator=(const BundleControlPoint &src);// ??? not implemented
@@ -133,10 +135,10 @@ namespace Isis {
                           LinearAlgebra::Vector &v1);
 
       virtual bool applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
-                                             SparseBlockColumnMatrix &N12,
-                                             LinearAlgebra::Vector &n2,
-                                             SparseBlockMatrix sparseNormals);
-
+                                     SparseBlockColumnMatrix &N12,
+                                     LinearAlgebra::Vector &n2,
+                                     LinearAlgebra::VectorCompressed &n1,
+                                     SparseBlockMatrix &sparseNormals);
     private:
       //!< pointer to the control point object this represents
       ControlPoint *m_controlPoint;

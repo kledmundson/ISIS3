@@ -390,8 +390,6 @@ namespace Isis {
       // normal equation matrices methods
 
       bool formNormalEquations();
-      bool formPhotoNormals();
-      bool formLidarNormals();
 
       bool computePartials(LinearAlgebra::Matrix  &coeffTarget,          //!< multi-segment version
                            LinearAlgebra::Matrix  &coeffImagePosition,

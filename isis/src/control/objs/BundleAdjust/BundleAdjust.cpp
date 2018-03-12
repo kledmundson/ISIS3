@@ -381,8 +381,7 @@ namespace Isis {
 
 
   /**
-   * Initialize all solution parameters. This method is called
-   * by constructors to
+   * Initialize all solution parameters. This method is called by constructors to
    * <ul>
    *   <li> initialize member variables                            </li>
    *   <li> set up the control net                                 </li>
@@ -408,7 +407,6 @@ namespace Isis {
    *   @history 2016-10-13 Ian Humphrey - Removed verification of held images in the from list
    *                           and counting of the number of held images. References #4293.
    *
-   *   @todo remove printf statements
    *   @todo answer comments with questions, TODO, ???, and !!!
    */
   void BundleAdjust::init(Progress *progress) {
@@ -586,16 +584,18 @@ namespace Isis {
         BundleMeasureQsp measure = bundleLidarPoint->at(j);
         QString cubeSerialNumber = measure->cubeSerialNumber();
 
-        if (lidarPoint->HasSerialNumber(cubeSerialNumber)) {  // TODO: better way? since bundleLidarPoint contains lidarPoint?
-          bundleLidarPoint->addSimultaneousMeasure(measure);
-        }
-
         BundleObservationQsp observation =
             m_bundleObservations.observationByCubeSerialNumber(cubeSerialNumber);
         BundleImageQsp image = observation->imageByCubeSerialNumber(cubeSerialNumber);
 
         measure->setParentObservation(observation);
         measure->setParentImage(image);
+
+        if (lidarPoint->hasSimultaneousMeasure(cubeSerialNumber)) {
+          bundleLidarPoint->addSimultaneousMeasure(measure);
+        }
+
+        int fred=1;
       }
 
       // TODO: is this even necessary? We know the apriori coordinates. But we need to call the
@@ -1252,7 +1252,6 @@ namespace Isis {
    * @see formWeightedNormals()
    */
 bool BundleAdjust::formNormalEquations() {
-//  bool BundleAdjust::formPhotoNormals() {
     bool status = false;
 
     m_bundleResults.setNumberObservations(0);// ???
@@ -1331,21 +1330,14 @@ bool BundleAdjust::formNormalEquations() {
           continue;
         }
 
-//        clock_t computePartialsClock1 = clock();
+//      clock_t computePartialsClock1 = clock();
 
-        // segment solution
-//        if (measure->parentBundleObservation()->numberPolynomialPositionSegments() > 1 ||
-//            measure->parentBundleObservation()->numberPolynomialPointingSegments() > 1) {
-          status = computePartials(coeffTarget, coeffImagePosition, coeffImagePointing,
+        status = computePartials(coeffTarget, coeffImagePosition, coeffImagePointing,
                                    coeffPoint3D, coeffRHS, measure);
-//        }
-//        else {
-//          status = computePartials(coeffTarget, coeffImage, coeffPoint3D, coeffRHS, measure);
-//        }
 
-//        clock_t computePartialsClock2 = clock();
-//        cumulativeComputePartialsTime += (computePartialsClock2 - computePartialsClock1)
-//            / (double)CLOCKS_PER_SEC;
+//      clock_t computePartialsClock2 = clock();
+//      cumulativeComputePartialsTime += (computePartialsClock2 - computePartialsClock1)
+//          / (double)CLOCKS_PER_SEC;
 
         if (!status) {
           // TODO should status be set back to true? JAM
@@ -1357,212 +1349,30 @@ bool BundleAdjust::formNormalEquations() {
         int numObs = m_bundleResults.numberObservations();
         m_bundleResults.setNumberObservations(numObs + 2);
 
-//        clock_t formMeasureNormalsClock1 = clock();
+//      clock_t formMeasureNormalsClock1 = clock();
 
-        // segment solution
-//        if (measure->parentBundleObservation()->numberPolynomialPositionSegments() > 1 ||
-//            measure->parentBundleObservation()->numberPolynomialPointingSegments() > 1) {
         formMeasureNormals(N22, N12, n1, n2, coeffTarget, coeffImagePosition, coeffImagePointing,
                            coeffPoint3D, coeffRHS, measure);
-//        }
-//        else {
-//          formMeasureNormals(N22, N12, n1, n2, coeffTarget, coeffImage, coeffPoint3D, coeffRHS,
-//                             measure);
-//        }
 
-//        clock_t formMeasureNormalsClock2 = clock();
-//        cumulativeFormMeasureNormalsTime += (formMeasureNormalsClock2 - formMeasureNormalsClock1)
-//            / (double)CLOCKS_PER_SEC;
+        measure->applyLidarRangeConstraint(N22, N12, n2, n1, m_sparseNormals);
+
+//      clock_t formMeasureNormalsClock2 = clock();
+//      cumulativeFormMeasureNormalsTime += (formMeasureNormalsClock2 - formMeasureNormalsClock1)
+//          / (double)CLOCKS_PER_SEC;
 
       } // end loop over this points measures
 
-//      clock_t formPointNormalsClock1 = clock();
+//    clock_t formPointNormalsClock1 = clock();
       formPointNormals(N22, N12, n2, m_RHS, point);
-//      clock_t formPointNormalsClock2 = clock();
+//    clock_t formPointNormalsClock2 = clock();
 
-//      cumulativeFormPointNormalsTime += (formPointNormalsClock2 - formPointNormalsClock1)
-//          / (double)CLOCKS_PER_SEC;
+      // image-point range constraint if lidar
+      // TODO: possible slowdown putting this here, will have to call setImage on measures again
+      //       I think. Maybe should move back up into measure loop above?
+//      point->applyLidarRangeConstraint(N22, N12, n2, n1, m_sparseNormals);
 
-      pointIndex++;
-
-      numGood3DPoints++;
-    } // end loop over 3D points
-
-//  qDebug() << "cumulative computePartials() Time: " << cumulativeComputePartialsTime;
-//  qDebug() << "cumulative formMeasureNormals() Time: " << cumulativeFormMeasureNormalsTime;
-//  qDebug() << "cumulative formPointNormals() Time: " << cumulativeFormPointNormalsTime;
-
-  // form the reduced normal equations
-//  clock_t formWeightedNormalsClock1 = clock();
-    formWeightedNormals(n1, m_RHS);
-//  clock_t formWeightedNormalsClock2 = clock();
-
-//  double formWeightedNormalsTime = (formWeightedNormalsClock2 - formWeightedNormalsClock1)
-//      / (double)CLOCKS_PER_SEC;
-
-//  qDebug() << "BundleAdjust::formWeightedNormals Time: " << formWeightedNormalsTime;
-
-  // finally if necessary, apply piecewise polynomial continuity constraints
-    if (m_bundleResults.numberContinuityConstraintEquations() > 0) {
-
-//    clock_t applyContinuityClock1 = clock();
-
-      applyPolynomialContinuityConstraints();
-
-//    clock_t applyContinuityClock2 = clock();
-
-//    double applyContinuityTime = (applyContinuityClock2 - applyContinuityClock1)
+//    cumulativeFormPointNormalsTime += (formPointNormalsClock2 - formPointNormalsClock1)
 //        / (double)CLOCKS_PER_SEC;
-
-//    qDebug() << "applying Continuity Constraints: " << applyContinuityTime;
-    }
-
-    // update number of unknown parameters
-    m_bundleResults.setNumberUnknownParameters(m_rank + 3 * numGood3DPoints);
-
-    return status;
-  }
-
-
-  /**
-   * Form the least-squares normal equations matrix.
-   * Each BundleControlPoint stores its Q matrix and NIC vector.
-   * The covariance matrix for each point will be stored in its adjusted surface point.
-   *
-   * @return bool
-   *
-   * @see formMeasureNormals()
-   * @see formPointNormals()
-   * @see formWeightedNormals()
-   */
-  bool BundleAdjust::formLidarNormals() {
-    bool status = false;
-
-//    m_bundleResults.setNumberObservations(0);// ???
-//    m_bundleResults.resetNumberConstrainedPointParameters();//???
-
-    // Initialize auxiliary matrices and vectors.
-    static LinearAlgebra::Matrix coeffTarget;
-    static LinearAlgebra::Matrix coeffImagePosition;
-    static LinearAlgebra::Matrix coeffImagePointing;
-    static LinearAlgebra::Matrix coeffPoint3D(2, 3);
-    static LinearAlgebra::Vector coeffRHS(2);
-    static LinearAlgebra::MatrixUpperTriangular N22(3);
-    SparseBlockColumnMatrix N12;
-    static LinearAlgebra::Vector n2(3);
-    LinearAlgebra::VectorCompressed n1(m_rank);
-
-    // if solving for target body parameters, set size of coeffTarget
-    // (note this size will not change through the adjustment).
-    if (m_bundleSettings->solveTargetBody()) {
-      int numTargetBodyParameters = m_bundleSettings->numberTargetBodyParameters();
-      // TODO make sure numTargetBodyParameters is greater than 0
-      coeffTarget.resize(2,numTargetBodyParameters);
-    }
-
-    // clear N12, n1, and nj
-    N12.clear();
-//    n1.clear();
-    m_RHS.clear();
-
-    // clear static matrices
-    coeffPoint3D.clear();
-    coeffRHS.clear();
-    N22.clear();
-    n2.clear();
-
-    // TODO timing tests
-//    double cumulativeComputePartialsTime = 0.0;
-//    double cumulativeFormMeasureNormalsTime = 0.0;
-//    double cumulativeFormPointNormalsTime = 0.0;
-
-    // loop over 3D points
-    int numGood3DPoints = 0;
-    int numRejected3DPoints = 0;
-    int pointIndex = 0;
-    int num3DPoints = m_bundleLidarPoints.size();
-
-    printf("\n");
-
-    for (int i = 0; i < num3DPoints; i++) {
-
-      BundleControlPointQsp point = m_bundleLidarPoints.at(i);
-
-      if (point->isRejected()) {
-        numRejected3DPoints++;
-
-        pointIndex++;
-        continue;
-      }
-
-      if ( i != 0 ) {
-        N22.clear();
-        N12.wipe();
-        n2.clear();
-      }
-
-      // loop over measures for this point
-      int numMeasures = point->size();
-      for (int j = 0; j < numMeasures; j++) {
-        BundleMeasureQsp measure = point->at(j);
-
-        // flagged as "JigsawFail" implies this measure has been rejected
-        // TODO  IsRejected is obsolete -- replace code or add to ControlMeasure
-        if (measure->isRejected()) {
-          continue;
-        }
-
-//        clock_t computePartialsClock1 = clock();
-
-        // segment solution
-//        if (measure->parentBundleObservation()->numberPolynomialPositionSegments() > 1 ||
-//            measure->parentBundleObservation()->numberPolynomialPointingSegments() > 1) {
-          status = computePartials(coeffTarget, coeffImagePosition, coeffImagePointing,
-                                   coeffPoint3D, coeffRHS, measure);
-//        }
-//        else {
-//          status = computePartials(coeffTarget, coeffImage, coeffPoint3D, coeffRHS, measure);
-//        }
-
-//        clock_t computePartialsClock2 = clock();
-//        cumulativeComputePartialsTime += (computePartialsClock2 - computePartialsClock1)
-//            / (double)CLOCKS_PER_SEC;
-
-        if (!status) {
-          // TODO should status be set back to true? JAM
-          // TODO this measure should be flagged as rejected.
-          continue;
-        }
-
-        // update number of observations
-        int numObs = m_bundleResults.numberObservations();
-        m_bundleResults.setNumberObservations(numObs + 2);
-
-//        clock_t formMeasureNormalsClock1 = clock();
-
-        // segment solution
-//        if (measure->parentBundleObservation()->numberPolynomialPositionSegments() > 1 ||
-//            measure->parentBundleObservation()->numberPolynomialPointingSegments() > 1) {
-        formMeasureNormals(N22, N12, n1, n2, coeffTarget, coeffImagePosition, coeffImagePointing,
-                           coeffPoint3D, coeffRHS, measure);
-//        }
-//        else {
-//          formMeasureNormals(N22, N12, n1, n2, coeffTarget, coeffImage, coeffPoint3D, coeffRHS,
-//                             measure);
-//        }
-
-//        clock_t formMeasureNormalsClock2 = clock();
-//        cumulativeFormMeasureNormalsTime += (formMeasureNormalsClock2 - formMeasureNormalsClock1)
-//            / (double)CLOCKS_PER_SEC;
-
-      } // end loop over this points measures
-
-//      clock_t formPointNormalsClock1 = clock();
-      formPointNormals(N22, N12, n2, m_RHS, point);
-//      clock_t formPointNormalsClock2 = clock();
-
-//      cumulativeFormPointNormalsTime += (formPointNormalsClock2 - formPointNormalsClock1)
-//          / (double)CLOCKS_PER_SEC;
 
       pointIndex++;
 
@@ -1766,7 +1576,7 @@ bool BundleAdjust::formNormalEquations() {
 
 
   /**
-   * Compute the Q matrix and NIC vector for a control point.  The inputs N22, N12, and n2
+   * Compute the Q matrix and NIC vector for a control point. The inputs N22, N12, and n2
    * come from calling formMeasureNormals() with the control point's measures.
    * The Q matrix and NIC vector are stored in the BundleControlPoint.
    * R = N12 x Q is accumulated into m_sparseNormals.
@@ -1793,9 +1603,6 @@ bool BundleAdjust::formNormalEquations() {
 
     NIC.clear();
     Q.zeroBlocks();
-
-    // image-point range constraint if lidar
-    bundleControlPoint->applyLidarRangeConstraint(N22, N12, n2, m_sparseNormals);
 
     // weighting of 3D point parameters
     boost::numeric::ublas::bounded_vector<double, 3> &weights

@@ -25,6 +25,9 @@
 
 #include <QSharedPointer>
 
+#include "LinearAlgebra.h"
+#include "SparseBlockMatrix.h"
+
 namespace Isis {
   class BundleControlPoint;
   class BundleImage;
@@ -84,7 +87,7 @@ namespace Isis {
       BundleMeasure(const BundleMeasure &src);
 
       // destructor
-      ~BundleMeasure();
+      virtual ~BundleMeasure();
 
       BundleMeasure &operator=(const BundleMeasure &src);
       void setParentObservation(QSharedPointer<BundleObservation> observation);
@@ -120,6 +123,12 @@ namespace Isis {
       int polyPointingSegmentIndex() const;
       int positionNormalsBlockIndex() const;
       int pointingNormalsBlockIndex() const;
+
+      virtual bool applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
+                                             SparseBlockColumnMatrix &N12,
+                                             LinearAlgebra::Vector &n2,
+                                             LinearAlgebra::VectorCompressed &n1,
+                                             SparseBlockMatrix &sparseNormals);
 
     private:
       ControlMeasure *m_controlMeasure;                      //!< ISIS control measure

@@ -15,6 +15,29 @@ namespace Isis {
 
 
   /**
+   * Default constructor.
+   */
+  BundleControlPoint::BundleControlPoint() {
+    m_controlPoint = NULL;
+
+    // initialize to 0.0
+    m_corrections.clear();
+    m_weights.clear();
+    m_nicVector.clear();
+
+    // initialize to Null for consistency with other bundle classes...
+    m_aprioriSigmas.clear();
+    m_aprioriSigmas[0] = Isis::Null;
+    m_aprioriSigmas[1] = Isis::Null;
+    m_aprioriSigmas[2] = Isis::Null;
+    m_adjustedSigmas.clear();
+    m_adjustedSigmas[0] = Isis::Null;
+    m_adjustedSigmas[1] = Isis::Null;
+    m_adjustedSigmas[2] = Isis::Null;
+  }
+
+
+  /**
    * Constructs a BundleControlPoint object from a ControlPoint. Only the 
    * non-ignored measures are added to the BundleControlPoint. 
    *  
@@ -32,7 +55,7 @@ namespace Isis {
         continue;
       }
 
-      addMeasure(controlMeasure);      
+      addMeasure(controlMeasure);
     }
 
     // initialize to 0.0
@@ -836,10 +859,10 @@ namespace Isis {
    *
    */
   bool BundleControlPoint::applyLidarRangeConstraint(LinearAlgebra::MatrixUpperTriangular &N22,
-                                                          SparseBlockColumnMatrix &N12,
-                                                          LinearAlgebra::Vector &n2,
-                                                          SparseBlockMatrix sparseNormals) {
+                                                     SparseBlockColumnMatrix &N12,
+                                                     LinearAlgebra::Vector &n2,
+                                                     LinearAlgebra::VectorCompressed &n1,
+                                                     SparseBlockMatrix &sparseNormals) {
     return false;
   }
-
 }
