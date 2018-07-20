@@ -29,7 +29,7 @@
 
   <groups>
     <group name="Files">
-      <parameter name="FROM">
+      <parameter name="FROMPVL">
         <type>filename</type>
         <fileMode>input</fileMode>
         <brief>
@@ -39,17 +39,22 @@
           Use this parameter to select the filename to import.
         </description>
         <filter>
+          *.pvl
+        </filter>
+      </parameter>
+      <parameter name="FROMREVSUPPORT">
+        <type>filename</type>
+        <fileMode>input</fileMode>
+        <brief>
+          Input Apollo Pan support data file.
+        </brief>
+        <description>
+          Use this parameter to select the filename to import.
+        </description>
+        <filter>
           *.csv
         </filter>
       </parameter>
     </group>
-
-    <group name="Time">
-      <parameter name="GMT">
-        <type>string</type>
-        <brief>GMT format: YYYY-MM-DD HH:MM:SS.SSS</brief>
-        <description>GMT is space deliniated Year Month Day Hour Minute Seconds</description>
-      </parameter>
-    </group>    
   </groups>
 </application>
