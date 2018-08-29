@@ -280,11 +280,19 @@ namespace Isis {
    *                           colums and rows. In ::errorPropagation method, call to get Q matrix
    *                           from BundleControlPoint was creating a copy instead of getting a
    *                           reference. References #4664.
+   *   @history 2018-05-22 Ken Edmundson - Modified methods bundleSolveInformation() and
+   *                           solveCholeskyBR() to return raw pointers to a BundleSolutionInfo object.
+   *                           Also modified resultsReady signal to take a raw pointer to a
+   *                           BundleSolutionInfo object. This was done to avoid using a copy
+   *                           constructor in the BundleSolutionInfo class because it is derived
+   *                           from QObject. Note that we ultimately want to return a QSharedPointer
+   *                           instead of a raw pointer.
    *   @history 2017-06-08 Makayla Shepherd - Modified imageLists() to close the image cube after
    *                           adding it to the image list. Fixes #4908.
-   *   @history 2017-08-09 Summer Stapleton - Added a try/catch around the m_controlNet assignment
-   *                           in each of the constructors to verify valid control net input.
-   *                           Fixes #5068.
+   *   @history 2018-06-14 Christopher Combs - Added getter method to tell if a bundle adjust was
+   *                           aborted. Added emits for status updates to the run widget.
+   *   @history 2018-06-18 Makayla Shepherd - Stopped command line output for ipce BundleAdjust. 
+   *                           Fixes #4171.
    *   @history 2017-07-14 Ken Edmundson Added support for piecewise polynomials...
    *                           -modifications to...
    *                               ::init
@@ -292,6 +300,9 @@ namespace Isis {
    *                               ::formNormalEquations
    *                           -methods...
    *                               void applyPolynomialContinuityConstraints()
+   *   @history 2017-08-09 Summer Stapleton - Added a try/catch around the m_controlNet assignment
+   *                           in each of the constructors to verify valid control net input.
+   *                           Fixes #5068.
    *   @history 2017-11-01 Ken Edmundson Additional support for piecewise polynomials, primarily for
    *                                     speed improvement. Normal equations matrix changed to
    *                                     have a separate block for each position and pointing
@@ -332,9 +343,10 @@ namespace Isis {
                    QList<ImageList *> imgList,
                    bool printSummary);
       ~BundleAdjust();
-      BundleSolutionInfo    solveCholeskyBR();
+      BundleSolutionInfo*    solveCholeskyBR();
 
       QList<ImageList *> imageLists();
+      bool isAborted();
 
     public slots:
       bool solveCholesky();
@@ -356,7 +368,9 @@ namespace Isis {
     signals:
       void statusUpdate(QString);
       void error(QString);
-      void iterationUpdate(int, double);
+      void iterationUpdate(int);
+      void pointUpdate(int);
+      void statusBarUpdate(QString);
       void resultsReady(BundleSolutionInfo *bundleSolveInformation);
       void finished();
 
@@ -368,7 +382,7 @@ namespace Isis {
       bool validateNetwork();
       bool solveSystem();
       void iterationSummary();
-      BundleSolutionInfo bundleSolveInformation();
+      BundleSolutionInfo* bundleSolveInformation();
       bool computeBundleStatistics();
       void applyParameterCorrections();
       bool errorPropagation();
